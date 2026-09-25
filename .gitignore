@@ -1,0 +1,3 @@
+sidecar
+*.o
+*.dSYM/
