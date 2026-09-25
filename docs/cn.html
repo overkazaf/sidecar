@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>sidecar — FairPlay 解密边车服务</title>
+<title>sidecar — 技术深度解析</title>
 <style>
 :root {
   --bg: #ffffff;
@@ -32,60 +32,7 @@ body {
 }
 a { color: var(--accent); text-decoration: none; }
 a:hover { text-decoration: underline; }
-.container { max-width: 960px; margin: 0 auto; padding: 0 24px; }
-.hero {
-  text-align: center;
-  padding: 80px 0 60px;
-  border-bottom: 1px solid var(--border);
-}
-.hero h1 { font-size: 3rem; font-weight: 800; color: var(--text-bright); letter-spacing: -0.02em; }
-.hero h1 span { color: var(--accent); }
-.hero .tagline { font-size: 1.2rem; color: var(--text-dim); margin-top: 12px; max-width: 640px; margin-left: auto; margin-right: auto; }
-.stats { display: flex; justify-content: center; gap: 32px; margin-top: 32px; flex-wrap: wrap; }
-.stat { background: var(--bg-card); border: 1px solid var(--border); border-radius: 8px; padding: 16px 24px; text-align: center; min-width: 140px; }
-.stat .num { font-size: 1.75rem; font-weight: 700; color: var(--green); font-family: var(--font-mono); }
-.stat .label { font-size: 0.8rem; color: var(--text-dim); margin-top: 4px; }
-section { padding: 60px 0; border-bottom: 1px solid var(--border); }
-section:last-child { border-bottom: none; }
-h2 { font-size: 1.75rem; font-weight: 700; color: var(--text-bright); margin-bottom: 20px; display: flex; align-items: center; gap: 10px; }
-h2 .icon { font-size: 1.5rem; }
-h3 { font-size: 1.15rem; color: var(--accent); margin: 24px 0 12px; font-weight: 600; }
-p { margin-bottom: 16px; }
-pre { background: var(--bg-code); border: 1px solid var(--border); border-radius: 8px; padding: 20px; overflow-x: auto; font-family: var(--font-mono); font-size: 0.85rem; line-height: 1.5; margin: 16px 0; color: var(--text); }
-code { font-family: var(--font-mono); font-size: 0.85em; background: var(--bg-code); padding: 2px 6px; border-radius: 4px; }
-pre code { background: none; padding: 0; }
-.kw { color: #8250df; }
-.str { color: #0550ae; }
-.cmt { color: var(--text-dim); font-style: italic; }
-.flag { color: var(--yellow); }
-.val { color: var(--green); }
-.arch-diagram { background: var(--bg-code); border: 1px solid var(--border); border-radius: 8px; padding: 16px 32px; font-family: var(--font-mono); font-size: 0.82rem; line-height: 1.7; overflow-x: auto; margin: 20px 0; white-space: pre; }
-.arch-diagram .proc { color: var(--accent); font-weight: 700; }
-.arch-diagram .ns { color: #8250df; }
-.arch-diagram .port { color: var(--green); }
-.arch-diagram .dim { color: var(--text-dim); }
-table { width: 100%; border-collapse: collapse; margin: 16px 0; font-size: 0.9rem; }
-th, td { padding: 10px 14px; border: 1px solid var(--border); text-align: left; }
-th { background: var(--bg-card); color: var(--text-bright); font-weight: 600; white-space: nowrap; }
-td { vertical-align: top; }
-tr:nth-child(even) { background: #f6f8fa; }
-.yes { color: var(--green); font-weight: 600; }
-.no { color: var(--red); }
-.partial { color: var(--yellow); }
-.features { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; margin-top: 20px; }
-.feature { background: var(--bg-card); border: 1px solid var(--border); border-radius: 8px; padding: 20px; }
-.feature .title { color: var(--green); font-weight: 700; font-size: 0.95rem; margin-bottom: 8px; }
-.feature p { color: var(--text-dim); font-size: 0.85rem; margin: 0; }
-footer { padding: 40px 0; text-align: center; color: var(--text-dim); font-size: 0.85rem; }
-footer a { color: var(--accent); }
-@media (max-width: 640px) {
-  .hero h1 { font-size: 2rem; }
-  .stats { gap: 12px; }
-  .stat { min-width: 100px; padding: 12px 16px; }
-  .stat .num { font-size: 1.25rem; }
-  pre { padding: 14px; font-size: 0.78rem; }
-  .arch-diagram { padding: 16px; font-size: 0.72rem; }
-}
+.container { max-width: 880px; margin: 0 auto; padding: 0 24px; }
 
 /* Floating Language Switcher */
 .lang-switch {
@@ -104,11 +51,7 @@ footer a { color: var(--accent); }
   font-size: 13px;
   box-shadow: 0 2px 8px rgba(0,0,0,0.08);
 }
-.lang-switch .lang-icon {
-  padding: 4px 6px;
-  font-size: 14px;
-}
-.lang-switch a, .lang-switch span:not(.lang-icon) {
+.lang-switch a, .lang-switch span {
   padding: 6px 14px;
   border-radius: 16px;
   text-decoration: none;
@@ -117,335 +60,599 @@ footer a { color: var(--accent); }
 }
 .lang-switch .active {
   background: #0969da;
-  color: #fff;
+  color: #ffffff;
 }
 .lang-switch a:hover {
   color: #1f2328;
   text-decoration: none;
 }
+
+/* Nav */
+nav {
+  position: sticky; top: 0; z-index: 100;
+  background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border);
+  padding: 12px 24px;
+  display: flex; justify-content: space-between; align-items: center;
+}
+nav .brand { font-weight: 700; color: var(--text-bright); font-size: 1.1rem; }
+nav .brand span { color: var(--accent); }
+nav .links { display: flex; gap: 16px; font-size: 0.85rem; }
+nav .links a { color: var(--text-dim); }
+nav .links a:hover { color: var(--text-bright); text-decoration: none; }
+
+/* Hero */
+.hero { text-align: center; padding: 80px 0 48px; border-bottom: 1px solid var(--border); }
+.hero h1 { font-size: 2.8rem; font-weight: 800; color: var(--text-bright); letter-spacing: -0.02em; }
+.hero h1 span { color: var(--accent); }
+.hero .tagline { font-size: 1.15rem; color: var(--text-dim); margin-top: 12px; max-width: 680px; margin-left: auto; margin-right: auto; }
+.hero .meta { margin-top: 20px; font-size: 0.85rem; color: var(--text-dim); }
+.stats { display: flex; justify-content: center; gap: 24px; margin-top: 28px; flex-wrap: wrap; }
+.stat { background: var(--bg-card); border: 1px solid var(--border); border-radius: 8px; padding: 14px 20px; text-align: center; min-width: 120px; }
+.stat .num { font-size: 1.5rem; font-weight: 700; color: var(--accent); font-family: var(--font-mono); }
+.stat .label { font-size: 0.75rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.05em; margin-top: 2px; }
+
+/* TOC */
+.toc { background: var(--bg-card); border: 1px solid var(--border); border-radius: 8px; padding: 16px 28px; margin: 40px 0; }
+.toc h3 { color: var(--text-bright); margin-bottom: 12px; font-size: 1rem; }
+.toc ol { padding-left: 20px; columns: 2; column-gap: 40px; }
+.toc li { margin-bottom: 6px; font-size: 0.9rem; break-inside: avoid; }
+.toc li a { color: var(--text-dim); }
+.toc li a:hover { color: var(--accent); }
+
+/* Sections */
+section { padding: 16px 32px 0; border-bottom: 1px solid var(--border); }
+section:last-child { border-bottom: none; }
+h2 { font-size: 1.6rem; font-weight: 700; color: var(--text-bright); margin-bottom: 16px; padding-top: 8px; }
+h3 { font-size: 1.1rem; color: var(--accent); margin: 28px 0 10px; font-weight: 600; }
+h4 { font-size: 0.95rem; color: var(--purple); margin: 20px 0 8px; font-weight: 600; }
+p { margin-bottom: 14px; }
+ul, ol { margin-bottom: 14px; padding-left: 24px; }
+li { margin-bottom: 6px; }
+
+/* Code */
+pre { background: var(--bg-code); border: 1px solid var(--border); border-radius: 8px; padding: 18px; overflow-x: auto; font-family: var(--font-mono); font-size: 0.82rem; line-height: 1.55; margin: 14px 0; color: var(--text); }
+code { font-family: var(--font-mono); font-size: 0.84em; background: var(--bg-code); padding: 2px 6px; border-radius: 4px; }
+pre code { background: none; padding: 0; }
+.kw { color: #8250df; }
+.str { color: #0550ae; }
+.cmt { color: var(--text-dim); font-style: italic; }
+.val { color: var(--green); }
+.flag { color: var(--yellow); }
+
+/* Details */
+details { background: var(--bg-card); border: 1px solid var(--border); border-radius: 8px; margin: 14px 0; }
+details summary { padding: 14px 18px; cursor: pointer; font-weight: 600; color: var(--text-bright); font-size: 0.95rem; }
+details summary:hover { color: var(--accent); }
+details .content { padding: 0 18px 18px; }
+
+/* Tables */
+table { width: 100%; border-collapse: collapse; margin: 16px 0; font-size: 0.88rem; }
+th { background: var(--bg-card); color: var(--text-bright); text-align: left; padding: 10px 14px; border: 1px solid var(--border); font-weight: 600; }
+td { padding: 10px 14px; border: 1px solid var(--border); vertical-align: top; }
+tr:nth-child(even) { background: #f6f8fa; }
+.yes { color: var(--green); font-weight: 600; }
+.no { color: var(--red); }
+.partial { color: var(--yellow); }
+
+/* Cards */
+.card-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 16px; margin: 16px 0; }
+.card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 8px; padding: 20px; }
+.card h4 { margin-top: 0; color: var(--accent); }
+
+/* Diagram */
+.diagram { background: var(--bg-code); border: 1px solid var(--border); border-radius: 8px; padding: 20px; margin: 16px 0; overflow-x: auto; }
+.diagram svg { display: block; margin: 0 auto; max-width: 100%; }
+
+/* Note */
+.note { background: rgba(88,166,255,0.08); border-left: 3px solid var(--accent); padding: 14px 18px; border-radius: 0 8px 8px 0; margin: 16px 0; font-size: 0.9rem; }
+.warn { background: rgba(210,153,34,0.08); border-left-color: var(--yellow); }
+
+/* Footer */
+footer { padding: 40px 0; text-align: center; color: var(--text-dim); font-size: 0.85rem; }
+@media (max-width: 640px) {
+  .hero h1 { font-size: 2rem; }
+  .toc ol { columns: 1; }
+  .stats { gap: 12px; }
+  .stat { min-width: 100px; padding: 10px 14px; }
+  nav .links { gap: 10px; font-size: 0.8rem; }
+}
 </style>
 </head>
 <body>
 
+<nav>
+  <div class="brand"><span>sidecar</span></div>
+  <div class="links">
+    <a href="https://github.com/overkazaf/sidecar">GitHub</a>
+    <a href="https://github.com/overkazaf/aria">aria</a>
+  </div>
+</nav>
+
 <!-- Floating Language Switcher -->
 <div class="lang-switch">
-  <span class="lang-icon"></span>
   <a href="index.html">EN</a>
   <span class="active">中文</span>
 </div>
 
-<!-- Hero -->
+<div class="container">
+
+<!-- HERO -->
 <div class="hero">
-  <div class="container">
-    <h1><span>sidecar</span></h1>
-    <p class="tagline">
-      轻量级、无需 root 的 chroot 启动器，用于在 Linux 上运行 Apple Music FairPlay
-      解密服务——提供完整的可观测性、优雅的生命周期管理，且无需 Docker。
-    </p>
-    <div class="stats">
-      <div class="stat"><div class="num">923</div><div class="label">行 C 代码</div></div>
-      <div class="stat"><div class="num">39KB</div><div class="label">二进制大小</div></div>
-      <div class="stat"><div class="num">0</div><div class="label">无需 Root</div></div>
-      <div class="stat"><div class="num">&lt;5s</div><div class="label">解密 50MB</div></div>
-    </div>
+  <h1><span>sidecar</span></h1>
+  <p class="tagline">轻量级、无需 root 的进程隔离启动器，用于在 Linux 上运行音频处理流水线。基于用户命名空间隔离、PTY 可观测性和零停机生命周期管理。</p>
+  <p class="meta">约 25 分钟阅读 · 音频格式、容器结构与系统架构技术深度解析</p>
+  <div class="stats">
+    <div class="stat"><div class="num">923</div><div class="label">行 C 代码</div></div>
+    <div class="stat"><div class="num">39 KB</div><div class="label">二进制大小</div></div>
+    <div class="stat"><div class="num">0</div><div class="label">无需 Root</div></div>
+    <div class="stat"><div class="num">&lt;15s</div><div class="label">冷启动</div></div>
   </div>
 </div>
 
-<!-- 架构 -->
-<section>
-  <div class="container">
-    <h2>架构</h2>
-    <p>
-      sidecar 创建一个隔离的 Linux 用户命名空间，将宿主机内核接口 bind-mount 到 Android rootfs 中，
-      然后在 chroot 内 <code>exec</code> FairPlay 解密二进制。子进程通过两个原始 TCP 端口提供
-      流式解密和 HLS URL 解析服务。
-    </p>
-    <div class="arch-diagram"><span class="proc">sidecar</span> <span class="dim">(PID 1, 用户空间)</span>
-  <span class="dim">│</span>
-  <span class="dim">├─</span> <span class="ns">unshare(CLONE_NEWUSER | CLONE_NEWNS)</span>
-  <span class="dim">│   ├─</span> 写入 /proc/self/uid_map  <span class="dim">→ 0 &lt;真实uid&gt; 1</span>
-  <span class="dim">│   └─</span> 写入 /proc/self/gid_map  <span class="dim">→ 0 &lt;真实gid&gt; 1</span>
-  <span class="dim">│</span>
-  <span class="dim">├─</span> bind-mount /dev, /proc, /sys  <span class="dim">→ rootfs/</span>
-  <span class="dim">├─</span> 同步 /etc/{resolv.conf, hosts}  <span class="dim">→ rootfs/etc/</span>
-  <span class="dim">│</span>
-  <span class="dim">├─</span> <span class="ns">chroot("./rootfs")</span>
-  <span class="dim">│   └─</span> <span class="proc">exec /system/bin/main</span> <span class="dim">(FairPlay 解密守护进程)</span>
-  <span class="dim">│       ├─</span> <span class="port">TCP :47010</span> <span class="dim">— 解密（逐 sample 流密码）</span>
-  <span class="dim">│       └─</span> <span class="port">TCP :47020</span> <span class="dim">— m3u8（HLS 主播放列表解析）</span>
-  <span class="dim">│</span>
-  <span class="dim">└─</span> <span class="proc">监管循环</span>
-      <span class="dim">├─</span> PTY 缓冲区排空  <span class="dim">(行缓冲子进程输出)</span>
-      <span class="dim">├─</span> 端口就绪门控  <span class="dim">(--wait-ports)</span>
-      <span class="dim">├─</span> SIGUSR1 → 优雅重启  <span class="dim">(重新 fork, PID 不变)</span>
-      <span class="dim">└─</span> SIGTERM → 优雅关闭  <span class="dim">(TERM → 等待 → KILL)</span></div>
-  </div>
+<!-- TOC -->
+<div class="toc">
+  <h3>目录</h3>
+  <ol>
+    <li><a href="#audio-formats">音频格式基础</a></li>
+    <li><a href="#container">MP4/M4A 容器格式</a></li>
+    <li><a href="#hls">HLS 流媒体架构</a></li>
+    <li><a href="#architecture">sidecar 架构深入解析</a></li>
+    <li><a href="#optimization">优化原理</a></li>
+    <li><a href="#comparison">对比</a></li>
+    <li><a href="#quickstart">快速开始</a></li>
+    <li><a href="#cli">命令行参数</a></li>
+    <li><a href="#benchmarks">性能评测</a></li>
+  </ol>
+</div>
+
+<!-- 1. 音频格式基础 -->
+<section id="audio-formats">
+<h2>音频格式基础</h2>
+
+<p>要理解 sidecar 在音频流水线中的作用，需要先了解它处理的音频格式。Apple Music 生态系统中的两种主要编解码器是 ALAC（无损）和 AAC（有损），分别服务于不同的音质层级。</p>
+
+<h3>ALAC — Apple 无损音频编解码器</h3>
+
+<p>ALAC 是一种无损音频编解码器，解压后的音频与原始录音室母带完全一致（逐比特相同）。相较于原始 PCM，它实现了约 40-60% 的压缩率，使用两种技术的组合：</p>
+
+<details>
+<summary>预测编码 + 熵编码 — 无损压缩的工作原理</summary>
+<div class="content">
+<p><strong>线性预测编码（LPC）</strong> — 编码器分析每个采样块，拟合一个线性预测器来根据前序采样估计当前采样。它不存储原始采样值，而是存储<em>预测残差</em>（预测值与实际值之间的差异）。对于典型的音乐信号，这些残差远小于原始采样值，所需的比特数更少。</p>
+
+<p><strong>熵编码</strong> — 残差随后使用改进的 Rice 编码（一种 Golomb 编码）进行编码。Rice 编码对几何分布数据是最优的，而预测残差恰好倾向于遵循这种分布。较小的残差获得较短的码字，较大的获得较长的——在不丢失任何信息的情况下实现压缩。</p>
+
+<pre><code>原始 PCM:     [1024, 1028, 1031, 1035, 1040, 1038, ...]
+预测值:       [   0, 1024, 1028, 1031, 1035, 1040, ...]
+残差:         [1024,    4,    3,    4,    5,   -2, ...]   <-- 值小得多
+Rice 编码:    [长,   短,   短,   短,   短,   短]          <-- 总比特更少</code></pre>
+</div>
+</details>
+
+<h4>位深度：16 位 vs 24 位</h4>
+
+<p>位深度决定了动态范围——格式能表示的最大音量与最小音量之间的比值：</p>
+
+<table>
+<tr><th>位深度</th><th>动态范围</th><th>每采样值数</th><th>用途</th></tr>
+<tr><td>16 位</td><td>96 dB</td><td>65,536</td><td>CD 音质——满足大多数聆听场景</td></tr>
+<tr><td>24 位</td><td>144 dB</td><td>16,777,216</td><td>Hi-Res / 录音室——超过人耳极限（120 dB 痛阈）</td></tr>
+</table>
+
+<p>24 位音频提供比 16 位多 256 倍的振幅分辨率。实际上，这额外的余量在<em>制作</em>阶段（混音、母带处理）最为重要，因为多次处理会累积量化误差。对于回放，其优势在于更低的噪声本底——24 位的理论 -144 dBFS 噪声远低于任何聆听环境的背景噪声。</p>
+
+<h4>采样率：奈奎斯特与人类听觉</h4>
+
+<p>奈奎斯特-香农采样定理指出，要忠实地表示一个信号，采样率必须至少是信号中最高频率的两倍。人类听觉上限约为 20 kHz，因此：</p>
+
+<table>
+<tr><th>采样率</th><th>最高频率</th><th>数据率（24 位立体声）</th><th>用途</th></tr>
+<tr><td>44.1 kHz</td><td>22.05 kHz</td><td>2.12 Mbps</td><td>CD 标准——覆盖完整可听频率范围</td></tr>
+<tr><td>48 kHz</td><td>24 kHz</td><td>2.30 Mbps</td><td>视频/广播标准——Apple Music Hi-Res 默认值</td></tr>
+<tr><td>96 kHz</td><td>48 kHz</td><td>4.61 Mbps</td><td>超高解析度——部分录音室使用</td></tr>
+<tr><td>192 kHz</td><td>96 kHz</td><td>9.22 Mbps</td><td>存档——包含人耳无法听到的频率</td></tr>
+</table>
+
+<div class="note">
+<strong>为什么 24 位 / 48 kHz 是最佳平衡点：</strong>它覆盖了完整的可听频率范围并留有充裕余量（24 kHz > 20 kHz），提供 144 dB 动态范围，同时文件大小合理（一首约 4 分钟的歌曲大约 48 MB）。提升到 96 或 192 kHz 会使数据量翻倍或翻四倍，但回放时没有可感知的音质提升。
+</div>
+
+<h4>ALAC vs FLAC vs WAV</h4>
+
+<table>
+<tr><th>编解码器</th><th>类型</th><th>压缩率</th><th>解码 CPU</th><th>Apple 生态</th><th>容器</th></tr>
+<tr><td>ALAC</td><td>无损</td><td>~50%</td><td>低</td><td class="yes">原生支持</td><td>MP4/M4A</td></tr>
+<tr><td>FLAC</td><td>无损</td><td>~50%</td><td>低</td><td class="partial">部分支持（iOS 11+）</td><td>OGG/原生</td></tr>
+<tr><td>WAV</td><td>未压缩</td><td>0%</td><td>无</td><td class="yes">支持</td><td>RIFF</td></tr>
+</table>
+
+<h3>AAC — 高级音频编码</h3>
+
+<p>AAC 是有损编解码器——通过永久丢弃人耳不太可能感知的音频信息，实现更高的压缩比（256 kbps 时约 10:1）。这与无损有本质区别：你无法从 AAC 文件恢复原始信号。</p>
+
+<details>
+<summary>心理声学模型 — 有损压缩如何决定丢弃什么</summary>
+<div class="content">
+<p><strong>同时掩蔽：</strong>一个频率上的响亮声音会使附近较安静的声音变得不可听。如果 8 kHz 处有 80 dB 的钹声，7.5 kHz 处低于 60 dB 的细节字面上无法被听到——因此 AAC 不浪费比特编码它。</p>
+
+<p><strong>时间掩蔽：</strong>一个响亮的瞬态（如鼓击）会使其前后的声音变得不可感知。编码器可以降低瞬态周围的精度。</p>
+
+<p><strong>绝对听阈：</strong>人类在 1 kHz 处无法听到低于约 4 dB SPL 的声音，且灵敏度在 16 kHz 以上急剧下降。AAC 为这些区域分配更少的比特。</p>
+</div>
+</details>
+
+<h4>AAC 变体</h4>
+
+<table>
+<tr><th>规格</th><th>码率范围</th><th>用途</th></tr>
+<tr><td>AAC-LC（低复杂度）</td><td>128-320 kbps</td><td>Apple Music 标准层级（256 kbps）。高码率下最佳质量比。</td></tr>
+<tr><td>HE-AAC（v1）</td><td>48-96 kbps</td><td>低带宽流媒体。使用频谱带复制（SBR）重建高频。</td></tr>
+<tr><td>HE-AAC v2</td><td>24-48 kbps</td><td>语音/播客。在 SBR 基础上增加参数立体声。</td></tr>
+</table>
+
+<p>Apple Music 使用 AAC-LC 256 kbps——在盲听测试中被认为对大多数听众"透明"。Apple 选择 AAC 而非 MP3，因为 AAC 在约低 30% 的码率下实现等效音质（256 kbps AAC 听起来与 320 kbps MP3 相当），且 AAC 支持正确的无缝播放等 MP3 缺乏的特性。</p>
+
 </section>
 
-<!-- 为什么选择 sidecar -->
-<section>
-  <div class="container">
-    <h2>为什么选择 sidecar</h2>
-    <p>
-      社区已经构建了出色的 Apple Music ALAC 解密工具。sidecar 在此基础上，
-      专注解决实际生产部署中遇到的痛点：
-    </p>
-    <div class="features">
-      <div class="feature">
-        <div class="title">无需 Root 权限</div>
-        <p>通过用户命名空间隔离（<code>unshare</code>），将用户 UID 映射为命名空间内的 root。
-        无需 <code>sudo</code>，无需特权能力，无需 Docker 守护进程。</p>
-      </div>
-      <div class="feature">
-        <div class="title">完整可观测性</div>
-        <p>PTY 转发的子进程输出（行缓冲，实时可见）。<code>--json-events</code> 提供机器可解析的状态事件。
-        <code>--verbose</code> 提供人类可读的进度信息。</p>
-      </div>
-      <div class="feature">
-        <div class="title">端口就绪门控</div>
-        <p><code>--wait-ports 47010,47020</code> 会阻塞直到解密守护进程真正开始监听。
-        无需盲等或轮询。</p>
-      </div>
-      <div class="feature">
-        <div class="title">优雅生命周期管理</div>
-        <p><code>SIGUSR1</code> 在不重启 sidecar 本身的情况下重新 fork 子进程。
-        <code>SIGTERM</code> 发起可配置超时的优雅关闭。</p>
-      </div>
-      <div class="feature">
-        <div class="title">DNS 引导</div>
-        <p>自动将 <code>resolv.conf</code>、<code>hosts</code> 和
-        <code>nsswitch.conf</code> 同步到 chroot 中。避免静默的 DNS 解析失败。</p>
-      </div>
-      <div class="feature">
-        <div class="title">单 C 文件</div>
-        <p>923 行代码，除 libc + libutil 外零依赖。<code>make</code> 即可编译。
-        一个下午即可审计完整个代码库。</p>
-      </div>
-    </div>
-  </div>
+<!-- 2. 容器格式 -->
+<section id="container">
+<h2>MP4/M4A 容器格式</h2>
+
+<p>音频编解码器产生原始压缩数据——但要有用，这些数据需要一种存储元数据、时序信息并支持搜索定位的容器格式。Apple Music 使用 <strong>ISO 基础媒体文件格式</strong>（ISO 14496-12），通常称为 MP4。当容器仅包含音频时，使用 <code>.m4a</code> 扩展名。</p>
+
+<h3>Box（Atom）结构</h3>
+
+<p>MP4 文件是 <strong>Box</strong>（在 Apple 术语中也称为 Atom）的层级结构。每个 Box 有 4 字节大小字段、4 字节类型码和可选内容。Box 可以任意深度嵌套：</p>
+
+<div class="diagram">
+<svg viewBox="0 0 700 420" xmlns="http://www.w3.org/2000/svg" style="font-family: monospace; font-size: 13px;">
+  <defs>
+    <style>
+      .box { fill: none; stroke: #d0d7de; stroke-width: 1.5; rx: 6; }
+      .box-label { fill: #0969da; font-weight: bold; font-size: 13px; }
+      .box-desc { fill: #656d76; font-size: 11px; }
+      .data-fill { fill: rgba(26,127,55,0.08); stroke: #1a7f37; }
+      .moov-fill { fill: rgba(9,105,218,0.06); stroke: #0969da; }
+      .moof-fill { fill: rgba(130,80,223,0.06); stroke: #8250df; }
+    </style>
+  </defs>
+
+  <rect class="box" x="10" y="10" width="680" height="40"/>
+  <text class="box-label" x="24" y="35">ftyp</text>
+  <text class="box-desc" x="70" y="35">文件类型: iso5, isom, hlsf — 标识为分片 MP4</text>
+
+  <rect class="box moov-fill" x="10" y="60" width="680" height="140"/>
+  <text class="box-label" x="24" y="82">moov</text>
+  <text class="box-desc" x="70" y="82">影片头 — 轨道描述、时序、编解码器配置（不含音频数据）</text>
+
+  <rect class="box" x="30" y="92" width="640" height="98"/>
+  <text class="box-label" x="44" y="112">trak - mdia - minf - stbl - stsd</text>
+  <text class="box-desc" x="44" y="130">采样描述表 — 编解码器类型、参数、保护信息</text>
+
+  <rect class="box" x="50" y="140" width="180" height="40" style="stroke: #9a6700;"/>
+  <text style="fill: #9a6700; font-weight: bold; font-size: 12px;" x="64" y="164">enca (条目 1)</text>
+
+  <rect class="box" x="250" y="140" width="180" height="40" style="stroke: #9a6700;"/>
+  <text style="fill: #9a6700; font-weight: bold; font-size: 12px;" x="264" y="164">enca (条目 2)</text>
+
+  <text class="box-desc" x="460" y="164">-- 加密音频条目</text>
+
+  <rect class="box moof-fill" x="10" y="210" width="680" height="55"/>
+  <text class="box-label" x="24" y="232">moof</text>
+  <text class="box-desc" x="70" y="232">分片头 — traf/trun: 采样大小、偏移量、描述索引</text>
+  <text class="box-desc" x="70" y="248">senc: 逐采样 IV / saiz: 辅助信息大小 / saio: 辅助信息偏移</text>
+
+  <rect class="box data-fill" x="10" y="270" width="680" height="36"/>
+  <text class="box-label" x="24" y="293">mdat</text>
+  <text class="box-desc" x="70" y="293">分片 1 音频数据 — 加密 ALAC 采样（2-5 MB）</text>
+
+  <rect class="box moof-fill" x="10" y="316" width="680" height="36"/>
+  <text class="box-label" x="24" y="339">moof</text>
+  <text class="box-desc" x="70" y="339">分片 2 头</text>
+
+  <rect class="box data-fill" x="10" y="357" width="680" height="36"/>
+  <text class="box-label" x="24" y="380">mdat</text>
+  <text class="box-desc" x="70" y="380">分片 2 音频数据</text>
+
+  <text style="fill: #656d76; font-size: 14px; text-anchor: middle;" x="350" y="413">... 每首歌重复 10-20 个分片 ...</text>
+</svg>
+</div>
+
+<h4>普通 MP4 vs 分片 MP4（fMP4）</h4>
+
+<p><strong>普通 MP4</strong> 有一个包含完整采样表（<code>stbl</code>）的 <code>moov</code> Box，后跟一个包含所有音频数据的大 <code>mdat</code>。<code>moov</code> 包含每个采样的大小、偏移量和时间戳——支持即时定位，但要求整个文件写完才能播放。</p>
+
+<p><strong>分片 MP4</strong> 使用重复的 <code>moof + mdat</code> 对。每个分片通过 <code>trun</code>（轨道分片运行）中的独立时序信息可独立解码。这对流媒体至关重要——接收端只需收到 <code>moov</code> + 第一个分片即可开始播放，无需等待整个文件。</p>
+
+<div class="note">
+<strong>多描述问题：</strong>在 Apple 的分片 MP4 流中，<code>stsd</code> Box 通常包含<em>多个</em>采样描述条目（均为 <code>enca</code> 类型的加密音频）。分片 1 引用描述索引 1，而分片 2-16 引用描述索引 2。任何只处理第一个条目的工具都会产生一个只有第一个分片能正确播放的文件——其余解码为静音或噪声。
+</div>
+
+<h3>采样描述转换</h3>
+
+<p>当音频以受保护形式交付时，采样描述条目类型为 <code>enca</code>（加密音频），包含 <code>sinf</code>（保护信息）子 Box。要产生可播放文件，需要三个转换：</p>
+
+<ol>
+  <li><strong>重命名</strong> stsd 条目中每个 <code>enca</code> 的 4 字节类型字段为 <code>alac</code></li>
+  <li><strong>移除</strong> <code>sinf</code> 子 Box 并相应调整父级大小</li>
+  <li><strong>中和</strong>每个 <code>traf</code> 中的分片级保护元数据（<code>senc</code>、<code>saiz</code>、<code>saio</code> Box），将其类型覆写为 <code>free</code></li>
+</ol>
+
+<p>第三步通常被遗漏——如果 <code>senc</code> Box 保留，解复用器仍将采样视为受保护的，即使 stsd 已重命名，也会导致除第一个分片外的所有分片解码失败。</p>
+
 </section>
 
-<!-- 对比 -->
-<section>
-  <div class="container">
-    <h2>对比</h2>
-    <p>
-      致敬并受启发于
-      <a href="https://github.com/zhaarey/wrapper">zhaarey/wrapper</a>、
-      <a href="https://github.com/glomatico/wrapper-v2">glomatico/wrapper-v2</a> 和
-      <a href="https://github.com/WorldObservationLog/wrapper">WorldObservationLog/wrapper</a>
-      等开创性工作。
-    </p>
-    <table>
-      <tr>
-        <th>特性</th>
-        <th>sidecar</th>
-        <th>wrapper</th>
-        <th>wrapper-v2</th>
-      </tr>
-      <tr>
-        <td>语言</td>
-        <td>C（923 行，开源）</td>
-        <td>C++（闭源二进制）</td>
-        <td>Rust 监管 + C++ worker</td>
-      </tr>
-      <tr>
-        <td>需要 Root</td>
-        <td class="yes">否（用户命名空间）</td>
-        <td class="yes">否（用户命名空间）</td>
-        <td class="partial">需要 Docker</td>
-      </tr>
-      <tr>
-        <td>PTY 输出</td>
-        <td class="yes">有（行缓冲）</td>
-        <td class="no">无</td>
-        <td class="no">无</td>
-      </tr>
-      <tr>
-        <td>端口就绪检测</td>
-        <td class="yes">--wait-ports（TCP 探测）</td>
-        <td class="no">无（盲启动）</td>
-        <td class="yes">监管进程管理</td>
-      </tr>
-      <tr>
-        <td>优雅重启</td>
-        <td class="yes">SIGUSR1 进程内重启</td>
-        <td class="no">进程直接退出</td>
-        <td class="yes">监管进程重新生成</td>
-      </tr>
-      <tr>
-        <td>DNS 处理</td>
-        <td class="yes">自动同步 resolv.conf</td>
-        <td class="no">未处理</td>
-        <td class="partial">Docker 处理</td>
-      </tr>
-      <tr>
-        <td>结构化事件</td>
-        <td class="yes">--json-events</td>
-        <td class="no">无</td>
-        <td class="no">无</td>
-      </tr>
-      <tr>
-        <td>优雅关闭</td>
-        <td class="yes">TERM → 等待 → KILL</td>
-        <td class="no">立即退出</td>
-        <td class="yes">监管进程处理</td>
-      </tr>
-      <tr>
-        <td>多实例</td>
-        <td class="yes">端口偏移 + aria_sidecar.py</td>
-        <td class="partial">仅手动</td>
-        <td class="no">每容器单实例</td>
-      </tr>
-      <tr>
-        <td>Docker 依赖</td>
-        <td class="yes">无</td>
-        <td class="yes">无</td>
-        <td class="no">必需</td>
-      </tr>
-      <tr>
-        <td>二进制大小</td>
-        <td><strong>39 KB</strong></td>
-        <td>20 KB</td>
-        <td>~5 MB (Rust)</td>
-      </tr>
-      <tr>
-        <td>源码可用</td>
-        <td class="yes">是</td>
-        <td class="no">否</td>
-        <td class="yes">是</td>
-      </tr>
-    </table>
-  </div>
+<!-- 3. HLS -->
+<section id="hls">
+<h2>HLS 流媒体架构</h2>
+
+<p>Apple Music 通过 <strong>HTTP Live Streaming（HLS）</strong> 交付音频——这是 Apple 的自适应流媒体协议。</p>
+
+<h3>三级播放列表层次</h3>
+
+<pre><code><span class="cmt"># 第 1 级: 主播放列表（来自 webplayback API）</span>
+#EXT-X-STREAM-INF:AVERAGE-BANDWIDTH=2765403,CODECS="alac",AUDIO="audio-alac-stereo"
+https://aod-ssl.itunes.apple.com/.../P1443135819_default.m3u8
+
+#EXT-X-STREAM-INF:AVERAGE-BANDWIDTH=256000,CODECS="mp4a.40.2",AUDIO="audio-stereo-256"
+https://aod-ssl.itunes.apple.com/.../P1443135819_aac256.m3u8
+
+<span class="cmt"># 第 2 级: 变体播放列表（客户端根据编解码器/音质偏好选择）</span>
+#EXT-X-KEY:METHOD=SAMPLE-AES,URI="skd://itunes.apple.com/p1443135819/c6"
+#EXT-X-MAP:URI="segment_map.mp4"
+#EXTINF:14.933,
+segment1.mp4
+
+<span class="cmt"># 第 3 级: 分段（实际音频数据 — 分片 MP4 块）</span></code></pre>
+
+<h4>变体选择逻辑</h4>
+
+<ol>
+  <li>筛选 ALAC 编解码器（<code>codecs="alac"</code>），当请求 Hi-Res 时</li>
+  <li>在 ALAC 变体中，选择不超过配置上限的最高采样率（默认 192 kHz）</li>
+  <li>如果 ALAC 不可用或未请求，回退到 AAC-LC 256 kbps</li>
+</ol>
+
 </section>
 
-<!-- 性能评测 -->
-<section>
-  <div class="container">
-    <h2>性能评测</h2>
-    <p style="color: var(--yellow); font-style: italic;">评测数据准备中，即将更新...</p>
-    <p>我们正在对 sidecar 与 wrapper 进行全面的性能对比评测，涵盖启动时间、解密吞吐量、内存占用和多 track 稳定性等维度。</p>
-  </div>
+<!-- 4. 架构 -->
+<section id="architecture">
+<h2>sidecar 架构深入解析</h2>
+
+<h3>用户命名空间隔离</h3>
+
+<p>sidecar 的核心创新是<strong>无需 root 权限</strong>运行基于 chroot 的进程流水线，使用 Linux 用户命名空间——一种创建 UID/GID 隔离视图的内核特性。</p>
+
+<details>
+<summary>Linux 命名空间入门</summary>
+<div class="content">
+<table>
+<tr><th>命名空间</th><th>标志</th><th>隔离内容</th></tr>
+<tr><td>User</td><td><code>CLONE_NEWUSER</code></td><td>UID/GID——命名空间内可以成为"root"而不拥有真实 root</td></tr>
+<tr><td>Mount</td><td><code>CLONE_NEWNS</code></td><td>文件系统挂载表——挂载对该命名空间私有</td></tr>
+<tr><td>PID</td><td><code>CLONE_NEWPID</code></td><td>进程 ID——子进程视自己为 PID 1</td></tr>
+<tr><td>Network</td><td><code>CLONE_NEWNET</code></td><td>网络设备、端口、路由表</td></tr>
+</table>
+<p>sidecar 仅使用 <strong>User + Mount</strong>——无需 root 的 chroot + bind mount 所需的最小集。这比 Docker（使用 5+ 种命名空间 + cgroups + overlay 文件系统）轻量得多。</p>
+</div>
+</details>
+
+<h4>分步命名空间设置</h4>
+
+<pre><code><span class="cmt">// 1. 在 unshare 之前保存真实 UID/GID（关键——unshare 后 getuid() 返回 65534）</span>
+uid_t real_uid = getuid();  <span class="cmt">// 例如 1000</span>
+gid_t real_gid = getgid();  <span class="cmt">// 例如 1000</span>
+
+<span class="cmt">// 2. 创建新的 user + mount 命名空间</span>
+unshare(CLONE_NEWUSER | CLONE_NEWNS);
+
+<span class="cmt">// 3. 将真实用户映射为命名空间内的 root</span>
+write("/proc/self/setgroups", "deny\n");        <span class="cmt">// gid_map 之前必须</span>
+write("/proc/self/uid_map", "0 1000 1\n");      <span class="cmt">// ns-uid-0 = 宿主-uid-1000</span>
+write("/proc/self/gid_map", "0 1000 1\n");      <span class="cmt">// ns-gid-0 = 宿主-gid-1000</span>
+
+<span class="cmt">// 4. 现在我们在命名空间内是"root"——mount 和 chroot 可以工作</span>
+mount("/dev",  "rootfs/dev",  NULL, MS_BIND|MS_REC, NULL);
+mount("/proc", "rootfs/proc", NULL, MS_BIND|MS_REC, NULL);
+
+<span class="cmt">// 5. 进入 rootfs</span>
+chroot("rootfs");
+chdir("/");
+execv("/system/bin/main", child_argv);</code></pre>
+
+<div class="note warn">
+<strong>常见陷阱：</strong>在 <code>unshare(CLONE_NEWUSER)</code> 之后但写入 <code>uid_map</code> 之前调用 <code>getuid()</code> 会返回 65534（"nobody" 溢出 UID）。uid/gid 映射必须使用在 unshare 调用<em>之前</em>捕获的真实 UID。此 bug 导致早期 sidecar 版本在写入 uid_map 时报"Operation not permitted"。
+</div>
+
+<h4>Docker vs sidecar 隔离对比</h4>
+
+<table>
+<tr><th>方面</th><th>Docker</th><th>sidecar</th></tr>
+<tr><td>使用的命名空间</td><td>User + Mount + PID + Network + IPC + UTS</td><td>仅 User + Mount</td></tr>
+<tr><td>文件系统</td><td>OverlayFS + 镜像层</td><td>直接 bind-mount rootfs 目录</td></tr>
+<tr><td>网络</td><td>虚拟网桥 + NAT</td><td>宿主网络（子进程端口直接可达）</td></tr>
+<tr><td>启动开销</td><td>~500ms-2s（镜像层、网络配置）</td><td>~5ms（两个系统调用）</td></tr>
+<tr><td>二进制大小</td><td>Docker 守护进程: ~50 MB</td><td>39 KB</td></tr>
+</table>
+
+<h3>进程生命周期</h3>
+
+<h4>PTY 分配：为什么 openpty() 重要</h4>
+
+<p>当进程的 stdout 是管道时（子进程通信的默认方式），C 库默认使用<strong>全缓冲</strong>输出——写入累积在 4 KB 内部缓冲区中，只在缓冲区满或调用 <code>fflush()</code> 时才刷新。这意味着子进程的进度消息可能数分钟不显示。</p>
+
+<p>sidecar 通过 <code>openpty()</code> 分配<strong>伪终端（PTY）</strong>。当 stdout 是 TTY 时，libc 切换到<strong>行缓冲</strong>模式——每个 <code>\n</code> 触发一次刷新。这使子进程输出实时可见，对登录和初始化过程的可观测性至关重要。</p>
+
+<h4>信号转发链</h4>
+
+<pre><code>操作者发送 SIGTERM
+    |
+    v
+sidecar（父进程）捕获信号
+    |
+    +-- 转发 SIGTERM 到子进程组
+    +-- 启动优雅超时计时器（--grace-secs，默认 10s）
+    +-- 继续排空 PTY 输出
+    +-- [子进程在优雅期内退出？]
+    |   +-- 是 -> 收集退出状态，以相同代码退出
+    |   +-- 否 -> 发送 SIGKILL，收集，退出
+    |
+SIGUSR1（优雅重启）:
+    +-- 相同的 TERM -> 等待 -> KILL 序列
+    +-- 子进程退出后 -> 使用相同 argv 重新 fork
+        （sidecar PID 不变——服务不中断）</code></pre>
+
+<h3>端口就绪检测</h3>
+
+<p>方法：以 200ms 间隔进行<strong>非阻塞 TCP 连接探测</strong>，与 PTY 排空交替执行。交替执行至关重要——子进程在启动期间输出超过 4 KB 的内容。如果 sidecar 在 TCP 探测上阻塞而不排空 PTY，PTY 缓冲区会满，子进程的 write() 会阻塞，启动会死锁。</p>
+
 </section>
 
-<!-- 快速开始 -->
-<section>
-  <div class="container">
-    <h2>快速开始</h2>
+<!-- 5. 优化原理 -->
+<section id="optimization">
+<h2>优化原理</h2>
 
-    <h3>编译</h3>
-<pre><code><span class="cmt"># 克隆并编译</span>
-git clone https://github.com/overkazaf/sidecar.git
-cd sidecar
-make          <span class="cmt"># → ./sidecar (39 KB)</span></code></pre>
+<h3>M4A 写入器：原地修补策略</h3>
 
-    <h3>运行（从文件读取认证，无需登录）</h3>
-<pre><code>./sidecar <span class="flag">--userns</span> <span class="flag">--rootfs</span> <span class="val">./rootfs</span> <span class="flag">--bin</span> <span class="val">/system/bin/main</span> \
+<p>采样处理后需要写回有效的 ALAC M4A 文件。朴素方法是从头构建新文件——但这要求理解原始容器中的每种 Box 类型，既脆弱又有信息损失。</p>
+
+<p>sidecar 的流水线使用<strong>原地字节修补</strong>：原始分片 MP4 在内存中被修改，处理后的采样在完全相同的字节偏移处覆写原始对应物。由于处理保持采样大小不变（sample_in.length == sample_out.length），mdat 区域的 Box 大小不需要改变。</p>
+
+<div class="card-grid">
+<div class="card">
+  <h4>1. stsd 条目重命名</h4>
+  <p>覆写<strong>每个</strong> <code>enca</code> 条目的 4 字节类型字段为 <code>alac</code>。移除 <code>sinf</code> 子 Box 并调整所有祖先 Box 大小。必须处理多个条目。</p>
+</div>
+<div class="card">
+  <h4>2. sinf 移除</h4>
+  <p>每个 <code>enca</code> 条目内的 <code>sinf</code> Box 描述保护方案。移除它需要缩小该条目及每个父级 Box（<code>stsd</code> - <code>stbl</code> - <code>minf</code> - <code>mdia</code> - <code>trak</code> - <code>moov</code>）。</p>
+</div>
+<div class="card">
+  <h4>3. 分片元数据中和</h4>
+  <p>每个 <code>traf</code> 包含 <code>senc</code>（IV）、<code>saiz</code>（辅助大小）、<code>saio</code>（辅助偏移）。它们被覆写为 <code>free</code> Box——相同大小，保留所有字节偏移，但对解复用器不可见。</p>
+</div>
+</div>
+
+<div class="note warn">
+<strong>为什么不用 ffmpeg 重新封装？</strong>对分片 ALAC 文件运行 <code>ffmpeg -c copy -movflags +faststart</code> 通常产生截断结果。ffmpeg 的 copy 模式从 moov 头读取时长，而分片 MP4 中 moov 仅描述第一个段（约 15 秒）。其余分片的 moof/mdat 对被静默丢弃。原地修补保留所有分片。
+</div>
+
+<h3>流水线并发</h3>
+
+<p>单个处理实例在 TCP 47010 上一次处理一个连接。对于专辑下载（10-20 首），这是吞吐量瓶颈。</p>
+
+<h4>多实例架构</h4>
+
+<pre><code>aria 服务器（Flask，多线程）
+    |
+    +-- DecryptPool（轮询，每实例互斥锁）
+    |   +-- sidecar :47010 / :47020  （实例 0）
+    |   +-- sidecar :47011 / :47021  （实例 1）
+    |   +-- sidecar :47012 / :47022  （实例 2）
+    |   +-- sidecar :47013 / :47023  （实例 3）
+    |
+    +-- 每请求: 选择最空闲 -> 加锁 -> 处理 -> 解锁</code></pre>
+
+<details>
+<summary>为什么持久连接会失败——以及每轨道连接的解决方案</summary>
+<div class="content">
+<p>最初，流水线跨轨道复用 TCP 连接（<code>PersistentDecryptSession</code>）。这失败了，因为处理服务在每个连接上维护内部会话状态——当第二首歌的 key context 到达同一连接时，状态机进入无效状态，导致服务崩溃或挂起。</p>
+
+<p>修复很直接：<strong>为每首歌打开新的 TCP 连接</strong>。连接建立开销（回环上约 1ms）相对于每首歌的处理时间（典型 48MB ALAC 文件约 4s）可以忽略。这以微小的延迟增加换取了完全的稳定性——流水线现在处理 19 首专辑时零失败。</p>
+</div>
+</details>
+
+</section>
+
+<!-- 6. 对比 -->
+<section id="comparison">
+<h2>对比</h2>
+
+<p>致敬 <a href="https://github.com/zhaarey/wrapper">zhaarey/wrapper</a>、<a href="https://github.com/glomatico/wrapper-v2">glomatico/wrapper-v2</a> 和 <a href="https://github.com/WorldObservationLog/AppleMusicDecrypt">WorldObservationLog</a> 等开创性工作。</p>
+
+<table>
+<tr><th>能力</th><th>wrapper</th><th>wrapper-v2</th><th>sidecar</th></tr>
+<tr><td>语言</td><td>C++（闭源二进制）</td><td>Rust 监管 + C++ worker</td><td class="yes">C（923 行，开源）</td></tr>
+<tr><td>需要 Root</td><td>否（用户命名空间）</td><td>Docker（等效 root）</td><td class="yes">否（用户命名空间）</td></tr>
+<tr><td>需要 Docker</td><td class="yes">否</td><td class="no">是</td><td class="yes">否</td></tr>
+<tr><td>输出可见性</td><td class="no">全缓冲</td><td class="partial">Docker 日志</td><td class="yes">PTY 行缓冲</td></tr>
+<tr><td>端口就绪</td><td class="no">无</td><td class="yes">Rust 监管</td><td class="yes">--wait-ports</td></tr>
+<tr><td>优雅重启</td><td class="no">不支持</td><td class="yes">监管重生</td><td class="yes">SIGUSR1 进程内</td></tr>
+<tr><td>DNS 处理</td><td class="no">未处理</td><td class="yes">Docker 处理</td><td class="yes">自动同步</td></tr>
+<tr><td>结构化事件</td><td class="no">无</td><td class="no">无</td><td class="yes">--json-events</td></tr>
+<tr><td>二进制大小</td><td>20 KB</td><td>~5 MB（Rust）</td><td>39 KB</td></tr>
+<tr><td>崩溃恢复</td><td class="no">进程退出</td><td class="yes">监管循环</td><td class="yes">同 PID，重新 fork</td></tr>
+<tr><td>构建工具链</td><td>N/A（二进制）</td><td>Rust + Cargo + Docker</td><td class="yes">cc（任意 C 编译器）</td></tr>
+</table>
+
+</section>
+
+<!-- 7. 快速开始 -->
+<section id="quickstart">
+<h2>快速开始</h2>
+
+<pre><code><span class="cmt"># 编译</span>
+<span class="kw">make</span>
+<span class="cmt"># 或: cc -O2 -Wall -Wextra -o sidecar sidecar.c -lutil</span>
+
+<span class="cmt"># 验证用户命名空间支持</span>
+cat /proc/sys/kernel/unprivileged_userns_clone   <span class="cmt"># 应为 1</span>
+
+<span class="cmt"># 运行（无需 root）</span>
+./sidecar <span class="flag">--rootfs</span> <span class="val">./rootfs</span> <span class="flag">--bin</span> <span class="val">/system/bin/main</span> \
   <span class="flag">--wait-ports</span> <span class="val">47010,47020</span> <span class="flag">--verbose</span> \
-  <span class="flag">--</span> -M <span class="val">47020</span> -D <span class="val">47010</span> -F</code></pre>
+  <span class="flag">--</span> -M 47020 -D 47010 -F
 
-    <h3>登录模式（首次认证）</h3>
-<pre><code>./sidecar <span class="flag">--userns</span> <span class="flag">--rootfs</span> <span class="val">./rootfs</span> <span class="flag">--bin</span> <span class="val">/system/bin/main</span> \
-  <span class="flag">--wait-ports</span> <span class="val">47010,47020</span> <span class="flag">--verbose</span> \
-  <span class="flag">--</span> -M <span class="val">47020</span> -D <span class="val">47010</span> --login=<span class="val">user@host:pass</span></code></pre>
-
-    <h3>多实例（4 个并行解密 worker）</h3>
-<pre><code><span class="kw">for</span> i <span class="kw">in</span> 0 1 2 3; <span class="kw">do</span>
-  ./sidecar <span class="flag">--userns</span> <span class="flag">--rootfs</span> <span class="val">./rootfs</span> <span class="flag">--bin</span> <span class="val">/system/bin/main</span> \
+<span class="cmt"># 多实例（4 个并行）</span>
+<span class="kw">for</span> i <span class="kw">in</span> 0 1 2 3; <span class="kw">do</span>
+  ./sidecar <span class="flag">--rootfs</span> <span class="val">./rootfs</span> <span class="flag">--bin</span> <span class="val">/system/bin/main</span> \
     <span class="flag">--wait-ports</span> <span class="val">$((47010+i)),$((47020+i))</span> \
-    <span class="flag">--</span> -M <span class="val">$((47020+i))</span> -D <span class="val">$((47010+i))</span> -F &amp;
-<span class="kw">done</span></code></pre>
+    <span class="flag">--</span> -M $((47020+i)) -D $((47010+i)) -F &amp;
+<span class="kw">done</span>
 
-    <h3>优雅重启（刷新认证无需重启 sidecar）</h3>
-<pre><code>kill -USR1 <span class="val">$(pgrep -f sidecar)</span></code></pre>
-  </div>
+<span class="cmt"># 优雅重启</span>
+kill -USR1 $(pgrep -f sidecar)</code></pre>
 </section>
 
-<!-- CLI 参考 -->
-<section>
-  <div class="container">
-    <h2>命令行参数</h2>
-    <table>
-      <tr><th>参数</th><th>默认值</th><th>说明</th></tr>
-      <tr><td><code>--rootfs PATH</code></td><td><code>./rootfs</code></td><td>Android rootfs 目录</td></tr>
-      <tr><td><code>--bin PATH</code></td><td><code>/system/bin/main</code></td><td>chroot 内执行的二进制文件</td></tr>
-      <tr><td><code>--userns</code></td><td>开启</td><td>使用用户命名空间（无需 root）。<code>--no-userns</code> 使用真实 chroot</td></tr>
-      <tr><td><code>--wait-ports P,P</code></td><td>&mdash;</td><td>阻塞直到指定 TCP 端口响应</td></tr>
-      <tr><td><code>--wait-timeout N</code></td><td>120</td><td>等待端口就绪的超时秒数</td></tr>
-      <tr><td><code>--grace-secs N</code></td><td>10</td><td>SIGTERM 与 SIGKILL 之间的等待秒数</td></tr>
-      <tr><td><code>--verbose</code></td><td>关闭</td><td>向 stderr 输出设置步骤</td></tr>
-      <tr><td><code>--json-events</code></td><td>关闭</td><td>在 stderr 输出机器可读的 JSON 状态</td></tr>
-      <tr><td><code>--pid-file PATH</code></td><td>&mdash;</td><td>写入子进程 PID，用于 systemd/k8s 探测</td></tr>
-      <tr><td><code>--ready-fd N</code></td><td>&mdash;</td><td>端口就绪时向 fd N 写入 <code>\1\n</code></td></tr>
-      <tr><td><code>--</code></td><td>&mdash;</td><td>之后的所有参数原样传递给子进程</td></tr>
-    </table>
-  </div>
+<!-- 8. CLI 参考 -->
+<section id="cli">
+<h2>命令行参数</h2>
+
+<table>
+<tr><th>参数</th><th>默认值</th><th>说明</th></tr>
+<tr><td><code>--rootfs PATH</code></td><td><code>./rootfs</code></td><td>rootfs 目录路径</td></tr>
+<tr><td><code>--bin PATH</code></td><td><code>/system/bin/main</code></td><td>chroot 内执行的程序</td></tr>
+<tr><td><code>--userns</code></td><td>开启</td><td>使用用户命名空间隔离（无需 root）</td></tr>
+<tr><td><code>--no-userns</code></td><td></td><td>使用真实 chroot（需要 root，兼容模式）</td></tr>
+<tr><td><code>--wait-ports P[,P..]</code></td><td></td><td>探测就绪的 TCP 端口</td></tr>
+<tr><td><code>--wait-timeout N</code></td><td><code>120</code></td><td>等待端口的超时秒数</td></tr>
+<tr><td><code>--grace-secs N</code></td><td><code>10</code></td><td>SIGTERM 到 SIGKILL 的等待秒数</td></tr>
+<tr><td><code>--ready-fd N</code></td><td></td><td>端口就绪时写入 <code>\1\n</code>（systemd 通知）</td></tr>
+<tr><td><code>--pid-file PATH</code></td><td></td><td>写入子进程 PID</td></tr>
+<tr><td><code>--json-events</code></td><td></td><td>在 stderr 输出结构化 JSON 事件</td></tr>
+<tr><td><code>--verbose</code>, <code>-v</code></td><td></td><td>输出设置步骤到 stderr</td></tr>
+<tr><td><code>--no-pty</code></td><td></td><td>跳过 PTY 分配</td></tr>
+<tr><td><code>--no-dns-seed</code></td><td></td><td>跳过 DNS 文件同步</td></tr>
+</table>
+
+<p><code>--</code> 之后的所有参数原样传递给子进程。</p>
 </section>
 
-<!-- 通信协议 -->
-<section>
-  <div class="container">
-    <h2>通信协议</h2>
-    <p>
-      FairPlay 解密二进制暴露两个原始 TCP 端口。均为本地无认证、长度前缀的二进制帧格式。
-    </p>
+<!-- 9. 性能评测 -->
+<section id="benchmarks">
+<h2>性能评测</h2>
 
-    <h3>端口 47020 — m3u8（获取流地址）</h3>
-    <p>将 Apple Music <code>adamId</code> 解析为 enhanced-HLS 主播放列表 URL。</p>
-<pre><code><span class="cmt">客户端 → 服务端:</span>  <span class="val">0a</span> <span class="str">31 34 34 30 38 34 31 32 36 33</span>
-                  <span class="dim">└─┘ └────── '1440841263' ──────┘</span>
-                  <span class="dim">长度</span>
+<p style="color: var(--text-dim); font-style: italic;">评测数据正在 80 核服务器上收集。启动时间、吞吐量、内存占用和多轨道稳定性与 wrapper 的对比结果即将发布。</p>
 
-<span class="cmt">服务端 → 客户端:</span>  <span class="str">"https://aod-ssl.itunes.apple.com/...master.m3u8\n"</span></code></pre>
-
-    <h3>端口 47010 — 解密（逐 sample）</h3>
-    <p>全双工流水线流密码通道。每个连接支持多个 key context。</p>
-<pre><code><span class="cmt"># Key context 头（每个 key 一次）:</span>
-<span class="val">len(adamId)</span> <span class="str">adamId</span> <span class="val">len(keyUri)</span> <span class="str">keyUri</span>
-
-<span class="cmt"># 每个 sample（重复）:</span>
-<span class="val">LE-uint32 sample_len</span> <span class="str">密文[sample_len]</span>  <span class="dim">→</span>  <span class="str">明文[sample_len]</span>
-
-<span class="cmt"># 结束 context:</span>
-<span class="val">00 00 00 00</span></code></pre>
-  </div>
+<p style="color: var(--text-dim);">请关注<a href="https://github.com/overkazaf/sidecar">仓库</a>获取更新。</p>
 </section>
 
-<!-- 与 aria 集成 -->
-<section>
-  <div class="container">
-    <h2>与 aria 集成</h2>
-    <p>
-      <a href="https://github.com/overkazaf/aria">aria</a> 是编排完整 ALAC 流水线的 HTTP API 服务：
-      Apple 目录查询 → HLS 下载 → 通过 sidecar 进行 FairPlay 解密 → m4a 输出。
-    </p>
-<pre><code><span class="cmt"># aria_sidecar.py 管理 N 个 sidecar 实例</span>
-python3 aria_sidecar.py -F --instances <span class="val">4</span>
+</div>
 
-<span class="cmt"># aria 服务器在实例间轮询分发解密请求</span>
-ARIA_INSTANCES=<span class="val">4</span> python3 server.py --port <span class="val">8899</span>
-
-<span class="cmt"># 下载 Hi-Res ALAC</span>
-curl -H <span class="str">"Authorization: Bearer $TOKEN"</span> \
-  <span class="str">"http://localhost:8899/download/1440841263?fmt=alac"</span> \
-  -o song.m4a</code></pre>
-  </div>
-</section>
-
-<!-- 页脚 -->
 <footer>
-  <div class="container">
-    <p>
-      <strong>sidecar</strong> &mdash; MIT 许可证 &mdash;
-      <a href="https://github.com/overkazaf/sidecar">GitHub</a>
-    </p>
-    <p style="margin-top: 8px;">
-      致敬
-      <a href="https://github.com/zhaarey/wrapper">zhaarey/wrapper</a>、
-      <a href="https://github.com/glomatico/wrapper-v2">glomatico/wrapper-v2</a> 和
-      <a href="https://github.com/WorldObservationLog/wrapper">WorldObservationLog/wrapper</a>
-    </p>
-  </div>
+  <p>sidecar 基于 MIT 许可证开源。</p>
+  <p>受 <a href="https://github.com/zhaarey/wrapper">zhaarey/wrapper</a> 启发 · 为 <a href="https://github.com/overkazaf/aria">aria</a> 流水线构建</p>
 </footer>
 
 </body>
