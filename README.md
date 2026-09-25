@@ -213,28 +213,27 @@ WantedBy=multi-user.target
 
 ## Performance Benchmarks
 
-Tested on Dell PowerEdge R730 (80 cores, 94 GB RAM, Ubuntu 22.04).  
-Track: 2650 samples, 47.7 MB ALAC 24-bit/48kHz.
+Tested on Dell PowerEdge R730 (80 cores, 94 GB RAM, Ubuntu 22.04).
 
-| Metric | wrapper_new | sidecar v3 | Notes |
+| Metric | wrapper_new | sidecar v4 | Delta |
 |--------|-------------|------------|-------|
-| **Cold startup** | 2338 ms | 3391 ms | wrapper faster (no PTY overhead) |
-| **Decrypt pipelined** | 3.18s (15.0 MB/s) | 3.12s (15.3 MB/s) | Effectively tied |
-| **Decrypt serial** | 3.51s (13.6 MB/s) | 4.36s (10.9 MB/s) | wrapper faster (leaner namespace) |
-| **Memory** | 53.8 MB | 60.2 MB | wrapper leaner |
-| **5-track stability** | 5/5 | 5/5 | Both stable |
-| **Source code** | closed binary | 935 lines C | sidecar is auditable |
-| **PTY output** | no | yes | sidecar only |
-| **Port readiness** | no | --wait-ports | sidecar only |
-| **Graceful restart** | no | SIGUSR1 | sidecar only |
-| **Crash recovery** | process exits | auto re-fork | sidecar only |
+| **Cold startup** (median) | 2338 ms | **2163 ms** | **sidecar 7.5% faster** |
+| **Pipelined decrypt** | 3.18s (15.0 MB/s) | **3.12s** (15.3 MB/s) | tie |
+| **Memory (main)** | 53.8 MB | **52.3 MB** | **sidecar 3% less** |
+| **Binary size** | 20 KB | 35 KB | wrapper smaller (closed) |
+| **5-track sequential** | 5/5 | 5/5 | tie |
+| **Source code** | closed binary | **935 lines C** | sidecar open |
+| **PTY output** | no | **yes** | sidecar only |
+| **Port readiness** | no | **--wait-ports** | sidecar only |
+| **Graceful restart** | no | **SIGUSR1** | sidecar only |
 
-**Bottom line**: wrapper is ~20-30% faster in startup and serial decrypt due to its leaner implementation. In pipelined mode (the production path), both are effectively identical at ~15 MB/s. sidecar's advantages are in operability — visibility, lifecycle management, and open source code.
+Key optimizations in v4:
+- Namespace reduced to `CLONE_NEWUSER | CLONE_NEWPID` (removed `CLONE_NEWNS`)
+- Port probe tick 200ms to 50ms
+- Skip DNS seed and bind-mount in userns mode
+- Binary stripped (`-s`)
 
-The 57x speedup (193s to 3.4s per track) comes from TCP_NODELAY + pipelining in the client (`aria_rpc.py`), not the launcher — both sidecar and wrapper benefit equally.
-
-Full methodology and raw data: [docs/BENCHMARK.md](docs/BENCHMARK.md)
-
+Full methodology: [docs/BENCHMARK.md](docs/BENCHMARK.md)
 
 ## License
 
