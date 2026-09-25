@@ -1,7 +1,9 @@
+Warning: Permanently added 'drivers-respectively-libs-caribbean.trycloudflare.com' (ED25519) to the list of known hosts.
 /*
- * sidecar — chroot launcher for FairPlay DRM decrypt binaries on Linux.
+ * sidecar — chroot launcher for am_alac_decryptor's `wrapper` binary.
  *
- * A lightweight, rootless chroot launcher with the following capabilities:
+ * Drop-in replacement for the original 7.8 KB sidecar with the following
+ * fixes/additions:
  *
  *   1.  PTY for the child  →  the inner main's stdout becomes line-buffered
  *       (instead of fully-buffered as in a pure pipe), so login progress
@@ -275,24 +277,25 @@ static void setup_userns(uid_t real_uid, gid_t real_gid) {
 }
 
 static void bind_mount_dev(const char *rootfs) {
-    char dev[4096];
-    snprintf(dev, sizeof dev, "%s/dev", rootfs);
-    mkdir_p(dev, 0755);
-    /* Remove stale symlinks */
-    static const char *stale[] = {"urandom", "random", "null", "zero", NULL};
-    for (const char **s = stale; *s; s++) {
-        char node[4096];
-        snprintf(node, sizeof node, "%s/dev/%s", rootfs, *s);
-        struct stat st;
-        if (lstat(node, &st) == 0 && S_ISLNK(st.st_mode)) {
-            unlink(node);
-            vlog("removed stale symlink /dev/%s", *s);
-        }
+    /* Match wrapper_new: only bind-mount /dev/urandom, not all of /dev.
+     * Mounting all of /dev can confuse the Android main binary. */
+    char target[4096];
+    snprintf(target, sizeof target, "%s/dev/urandom", rootfs);
+    /* Remove stale symlink if present */
+    struct stat st;
+    if (lstat(target, &st) == 0 && S_ISLNK(st.st_mode)) {
+        unlink(target);
+        vlog("removed stale symlink /dev/urandom");
     }
-    if (mount("/dev", dev, NULL, MS_BIND | MS_REC, NULL) == 0) {
-        vlog("bind-mounted /dev -> %s", dev);
+    /* Ensure the mount target exists as a regular file */
+    if (lstat(target, &st) != 0) {
+        int fd = open(target, O_WRONLY | O_CREAT, 0666);
+        if (fd >= 0) close(fd);
+    }
+    if (mount("/dev/urandom", target, NULL, MS_BIND, NULL) == 0) {
+        vlog("bind-mounted /dev/urandom -> %s", target);
     } else {
-        vlog("(warn) bind-mount /dev failed: %s", strerror(errno));
+        vlog("(warn) bind-mount /dev/urandom failed: %s", strerror(errno));
     }
 }
 
@@ -310,9 +313,6 @@ static void bind_mount_proc_sys(const char *rootfs) {
     snprintf(path, sizeof path, "%s/sys", rootfs);
     mkdir_p(path, 0755);
     if (mount("/sys", path, NULL, MS_BIND | MS_REC, NULL) == 0) {
-        vlog("bind-mounted /sys -> %s", path);
-    } else {
-        vlog("(warn) mount /sys failed: %s (non-fatal)", strerror(errno));
     }
 }
 
@@ -595,12 +595,40 @@ static pid_t spawn_child(const char *rootfs, const char *bin,
                          char *const final_argv[], char *const envp[],
                          int use_pty, int *master_fd_out) {
     int master_fd = -1, slave_fd = -1;
+
+    /* Step 1: PTY allocation BEFORE any namespace changes (needs /dev/pts) */
     if (use_pty) {
-        if (openpty(&master_fd, &slave_fd, NULL, NULL, NULL) < 0)
-            die("openpty");
-        fcntl(master_fd, F_SETFL, O_NONBLOCK);
+        if (openpty(&master_fd, &slave_fd, NULL, NULL, NULL) < 0) {
+            fprintf(stderr, "[sidecar] (warn) openpty failed: %s — falling back to pipe mode\n",
+                    strerror(errno));
+            use_pty = 0;
+        } else {
+            fcntl(master_fd, F_SETFL, O_NONBLOCK);
+        }
     }
 
+    /* Step 2: Enter namespaces BEFORE fork (like wrapper_new does).
+     * This way the child is born inside the namespace. */
+    uid_t saved_uid = 0;
+    gid_t saved_gid = 0;
+    if (g_userns) {
+        saved_uid = getuid();
+        saved_gid = getgid();
+        if (unshare(CLONE_NEWUSER | CLONE_NEWNS | CLONE_NEWPID) < 0) {
+            fprintf(stderr, "[sidecar] FATAL: unshare(NEWUSER|NEWNS) failed: %s\n"
+                    "  Ensure /proc/sys/kernel/unprivileged_userns_clone == 1\n",
+                    strerror(errno));
+            _exit(1);
+        }
+        setup_userns(saved_uid, saved_gid);
+        /* We are now uid 0 inside the namespace — mounts work */
+        bind_mount_dev(rootfs);
+        bind_mount_proc_sys(rootfs);
+        seed_chroot_etc(rootfs);
+        vlog("namespace setup complete, forking child");
+    }
+
+    /* Step 3: Fork — child inherits the namespace */
     pid_t child = fork();
     if (child < 0) die("fork");
 
@@ -616,22 +644,6 @@ static pid_t spawn_child(const char *rootfs, const char *bin,
             dup2(slave_fd, STDOUT_FILENO);
             dup2(slave_fd, STDERR_FILENO);
             if (slave_fd > STDERR_FILENO) close(slave_fd);
-        }
-
-        if (g_userns) {
-            uid_t saved_uid = getuid();
-            gid_t saved_gid = getgid();
-            /* Enter new user + mount namespace (no root needed) */
-            if (unshare(CLONE_NEWUSER | CLONE_NEWNS) < 0) {
-                fprintf(stderr, "[sidecar] FATAL: unshare(NEWUSER|NEWNS) failed: %s\n"
-                        "  Ensure /proc/sys/kernel/unprivileged_userns_clone == 1\n",
-                        strerror(errno));
-                _exit(1);
-            }
-            setup_userns(saved_uid, saved_gid);
-            /* Now we are uid 0 inside the namespace — mount and chroot work */
-            bind_mount_dev(rootfs);
-            bind_mount_proc_sys(rootfs);
         }
 
         if (chdir(rootfs) < 0)        die("chdir(rootfs)");
@@ -659,7 +671,7 @@ static pid_t spawn_child(const char *rootfs, const char *bin,
 
 static void usage(const char *argv0) {
     fprintf(stderr,
-        "sidecar — rootless chroot launcher for FairPlay decrypt\n"
+        "sidecar — chroot launcher for am_alac wrapper\n"
         "\n"
         "Usage:\n"
         "  %s [sidecar-flags...] [--] [child-args...]\n"
@@ -799,7 +811,8 @@ int main(int argc, char *argv[], char *envp[]) {
 
     /* Pre-chroot bookkeeping (only done once — restarts inherit the seeded
      * rootfs). */
-    if (seed_dns) seed_chroot_etc(rootfs);
+    if (seed_dns && !g_userns) seed_chroot_etc(rootfs);
+    /* In userns mode, DNS seeding happens in spawn_child after namespace setup */
     if (!g_userns) {
         /* Real-root mode: create device nodes via mknod (needs CAP_MKNOD) */
         seed_chroot_dev(rootfs);
