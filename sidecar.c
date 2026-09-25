@@ -509,16 +509,26 @@ static SuperviseEnd supervise_until_done(pid_t child, int master_fd,
         }
         (void)n;
 
-        /* Forward child output */
+        /* Forward child output with [sidecar] main: prefix per line */
         if (pfds[0].revents & POLLIN) {
             char buf[4096];
             ssize_t r = read(master_fd, buf, sizeof buf);
             if (r > 0) {
-                ssize_t w = 0;
-                while (w < r) {
-                    ssize_t k = write(STDOUT_FILENO, buf + w, r - w);
-                    if (k < 0) break;
-                    w += k;
+                static int at_line_start = 1;
+                const char *prefix = "[sidecar] main: ";
+                const int plen = 16;
+                ssize_t i = 0;
+                while (i < r) {
+                    if (at_line_start) {
+                        write(STDOUT_FILENO, prefix, plen);
+                        at_line_start = 0;
+                    }
+                    ssize_t nl = i;
+                    while (nl < r && buf[nl] != '\n') nl++;
+                    if (nl < r) nl++; /* include the newline */
+                    write(STDOUT_FILENO, buf + i, nl - i);
+                    if (nl > i && buf[nl - 1] == '\n') at_line_start = 1;
+                    i = nl;
                 }
             } else if (r == 0 || (r < 0 && errno != EINTR)) {
                 pfds[0].fd = -1;
@@ -827,7 +837,17 @@ int main(int argc, char *argv[], char *envp[]) {
     /* In userns mode, /dev/urandom must be mounted externally (no CLONE_NEWNS) */
     evt("chroot_ready");
 
-    vlog("userns = %s", g_userns ? "yes (no root needed)" : "no (real chroot)");
+    fprintf(stderr, "[sidecar] v4 starting\n");
+    fprintf(stderr, "[sidecar]   rootfs: %s\n", rootfs);
+    fprintf(stderr, "[sidecar]   binary: %s\n", bin);
+    fprintf(stderr, "[sidecar]   isolation: %s\n", g_userns ? "user namespace (rootless)" : "real chroot (root)");
+    if (pw.n > 0) {
+        fprintf(stderr, "[sidecar]   probe ports:");
+        for (int i = 0; i < pw.n; i++)
+            fprintf(stderr, " %d", pw.ports[i]);
+        fprintf(stderr, " (50ms tick)\n");
+    }
+    fprintf(stderr, "[sidecar]   pty: %s\n", use_pty ? "allocated" : "pipe mode");
 
     /* Self-pipe for signals + signal handlers */
     if (pipe(g_signal_pipe) < 0) die("pipe");
