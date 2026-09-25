@@ -49,35 +49,25 @@ This project is inspired by and builds upon the pioneering work of the Apple Mus
 
 `sidecar` addresses several limitations encountered when deploying wrapper in production environments — particularly around rootless operation, observability, and process lifecycle management.
 
-## Advantages over wrapper
+## Three-Way Comparison
 
-| Capability | wrapper | sidecar |
-|---|---|---|
-| **Root required** | No (user namespace) | **No** (user namespace) |
-| **Source available** | Closed binary (20 KB) | **Open C source** (923 lines) |
-| **Output visibility** | Fully buffered (invisible) | **PTY line-buffered** (real-time) |
-| **Port readiness** | None (blind start) | **`--wait-ports`** with non-blocking TCP probe |
-| **Graceful restart** | Not supported | **SIGUSR1** → TERM → grace → KILL → re-fork |
-| **DNS in chroot** | Not handled | **Auto-seed** resolv.conf / hosts / nsswitch.conf |
-| **Structured events** | None | **`--json-events`** for machine-parseable status |
-| **Grace shutdown** | Immediate kill | **Configurable** `--grace-secs` with TERM→wait→KILL |
-| **Docker required** | No | **No** |
-| **Binary size** | 20 KB | **39 KB** |
-| **Multi-generation** | Process dies on crash | **In-process restart loop** (same PID) |
-| **Signal forwarding** | Basic | **Full** (INT/TERM/HUP/QUIT → child) |
-| **Readiness notification** | None | **`--ready-fd`** for systemd / k8s probes |
+| Metric | wrapper | wrapper-v2 | sidecar v4 |
+|--------|---------|-----------|------------|
+| **Cold startup** | 2338 ms | ~5000-8000 ms (est.) | **2163 ms** |
+| **Decrypt throughput** | 15.0 MB/s | ~15 MB/s | **15.3 MB/s** |
+| **Memory** | 53.8 MB | ~150-200 MB (est.) | **52.3 MB** |
+| **Size** | 20 KB binary | ~200-500 MB image | **35 KB binary** |
+| **Container required** | No | Docker/podman | **No** |
+| **Build deps** | none (prebuilt) | Rust + NDK + CMake | **cc + libutil** |
+| **Build time** | n/a | ~15 min | **< 1 sec** |
+| **Source** | closed | Rust + C++ (open) | **C 935 lines (open)** |
+| **Root required** | No | No (container) | **No** (user namespace) |
+| **PTY output** | No | No | **Yes** |
+| **Port readiness** | No | Rust supervisor | **--wait-ports** |
+| **Graceful restart** | No | Supervisor restart | **SIGUSR1 (in-process)** |
+| **HTTP API** | No | Yes | No (aria server provides) |
 
-### Key improvements in detail
-
-1. **User namespace isolation** — `unshare(CLONE_NEWUSER | CLONE_NEWNS)` creates an isolated namespace where the process maps itself to uid 0. This enables `chroot()`, `mount()`, and device access without any real root privileges. The host system is never modified.
-
-2. **PTY output forwarding** — wrapper's child stdout is fully buffered by libc (default for non-TTY pipes), making login progress and decrypt status invisible. sidecar allocates a PTY via `openpty()`, switching the child to line-buffered mode so all output surfaces in real time.
-
-3. **Port readiness gate** — `--wait-ports 47010,47020` polls each port with non-blocking TCP connects on a 200ms tick, interleaved with PTY draining. This prevents the chatty child's output from filling the PTY buffer while waiting. Callers know exactly when the service is ready.
-
-4. **In-process graceful restart** — `kill -USR1 <sidecar-pid>` sends SIGTERM to the child, waits up to `--grace-secs`, escalates to SIGKILL if needed, then re-forks with the same argv. The sidecar process itself never exits — useful for auth refresh without redeployment.
-
-5. **DNS bootstrap** — Before chroot, copies `/etc/resolv.conf`, `/etc/hosts`, `/etc/nsswitch.conf`, and `/etc/services` into the rootfs. This ensures DNS resolution works inside the chroot — a common silent failure with wrapper deployments.
+wrapper-v2 data marked (est.) is based on Docker/Rust architecture overhead analysis, not direct measurement. wrapper and sidecar v4 data is from controlled benchmarks on Dell R730 (80 cores, 94 GB RAM).
 
 ## Build
 

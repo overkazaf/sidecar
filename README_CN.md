@@ -49,32 +49,25 @@
 
 `sidecar` 解决了在生产环境部署 wrapper 时遇到的若干限制——尤其在无 root 运行、可观测性和进程生命周期管理方面。
 
-## 相比 wrapper 的优势
+## 三方对比
 
-| 能力 | wrapper | sidecar |
-|------|---------|---------|
-| **需要 Root** | 否（user namespace） | **否**（user namespace） |
-| **源码可用** | 闭源二进制（20 KB） | **开源 C 代码**（923 行） |
-| **输出可见性** | 全缓冲（不可见） | **PTY 行缓冲**（实时可见） |
-| **端口就绪检测** | 无（盲启动） | **`--wait-ports`** 非阻塞 TCP 探测 |
-| **优雅重启** | 不支持 | **SIGUSR1** → TERM → 等待 → KILL → 重新 fork |
-| **chroot DNS** | 未处理 | **自动同步** resolv.conf / hosts |
-| **结构化事件** | 无 | **`--json-events`** 机器可解析状态 |
-| **优雅关闭** | 立即杀死 | **可配置** `--grace-secs` |
-| **崩溃恢复** | 进程退出 | **进程内重启循环**（PID 不变） |
-| **信号转发** | 基础 | **完整**（INT/TERM/HUP/QUIT → 子进程） |
+| 指标 | wrapper | wrapper-v2 | sidecar v4 |
+|------|---------|-----------|------------|
+| **冷启动** | 2338 ms | ~5000-8000 ms (估) | **2163 ms** |
+| **解密吞吐** | 15.0 MB/s | ~15 MB/s | **15.3 MB/s** |
+| **内存** | 53.8 MB | ~150-200 MB (估) | **52.3 MB** |
+| **体积** | 20 KB | ~200-500 MB 镜像 | **35 KB** |
+| **需要容器** | 否 | Docker/podman | **否** |
+| **构建依赖** | 无（预编译） | Rust + NDK + CMake | **cc + libutil** |
+| **构建时间** | 无 | ~15 分钟 | **< 1 秒** |
+| **源码** | 闭源 | Rust + C++（开源） | **C 935 行（开源）** |
+| **需要 Root** | 否 | 否（容器） | **否**（用户命名空间） |
+| **PTY 输出** | 无 | 无 | **有** |
+| **端口就绪检测** | 无 | Rust supervisor | **--wait-ports** |
+| **优雅重启** | 无 | Supervisor 重启 | **SIGUSR1（进程内）** |
+| **HTTP API** | 无 | 有 | 无（aria server 提供） |
 
-### 核心改进详解
-
-1. **用户命名空间隔离** — `unshare(CLONE_NEWUSER | CLONE_NEWNS)` 创建隔离命名空间，进程在命名空间内映射为 uid 0。这使得 `chroot()`、`mount()` 和设备访问无需任何真实 root 权限。宿主系统不会被修改。
-
-2. **PTY 输出转发** — wrapper 的子进程 stdout 被 libc 全缓冲（非 TTY 管道的默认行为），导致登录进度和解密状态不可见。sidecar 通过 `openpty()` 分配 PTY，将子进程切换为行缓冲模式，所有输出实时可见。
-
-3. **端口就绪门控** — `--wait-ports 47010,47020` 以 200ms 间隔用非阻塞 TCP 连接探测每个端口，与 PTY 缓冲区排空交替执行。调用方可以精确知道服务何时就绪。
-
-4. **进程内优雅重启** — `kill -USR1 <sidecar-pid>` 向子进程发送 SIGTERM，等待 `--grace-secs`，必要时升级为 SIGKILL，然后用相同参数重新 fork。sidecar 进程本身不会退出——适用于刷新认证而无需重新部署。
-
-5. **DNS 引导** — chroot 前自动将 `/etc/resolv.conf`、`/etc/hosts`、`/etc/nsswitch.conf` 和 `/etc/services` 复制到 rootfs 中，确保 chroot 内 DNS 解析正常。
+wrapper-v2 标注（估）的数据基于 Docker/Rust 架构开销分析。wrapper 和 sidecar v4 数据来自 Dell R730 实测。
 
 ## 编译
 
