@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>sidecar — FairPlay 解密边车服务</title>
+<style>
+:root {
+  --bg: #0d1117;
+  --bg-card: #161b22;
+  --bg-code: #1c2128;
+  --border: #30363d;
+  --text: #c9d1d9;
+  --text-dim: #8b949e;
+  --text-bright: #f0f6fc;
+  --accent: #58a6ff;
+  --green: #3fb950;
+  --yellow: #d29922;
+  --red: #f85149;
+  --purple: #bc8cff;
+  --font-mono: 'SF Mono', 'Fira Code', 'Cascadia Code', Consolas, monospace;
+  --font-sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', Helvetica, Arial, sans-serif;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-sans);
+  line-height: 1.7;
+  -webkit-font-smoothing: antialiased;
+}
+a { color: var(--accent); text-decoration: none; }
+a:hover { text-decoration: underline; }
+.container { max-width: 960px; margin: 0 auto; padding: 0 24px; }
+.hero {
+  text-align: center;
+  padding: 80px 0 60px;
+  border-bottom: 1px solid var(--border);
+}
+.hero h1 { font-size: 3rem; font-weight: 800; color: var(--text-bright); letter-spacing: -0.02em; }
+.hero h1 span { color: var(--accent); }
+.hero .tagline { font-size: 1.2rem; color: var(--text-dim); margin-top: 12px; max-width: 640px; margin-left: auto; margin-right: auto; }
+.stats { display: flex; justify-content: center; gap: 32px; margin-top: 32px; flex-wrap: wrap; }
+.stat { background: var(--bg-card); border: 1px solid var(--border); border-radius: 8px; padding: 16px 24px; text-align: center; min-width: 140px; }
+.stat .num { font-size: 1.75rem; font-weight: 700; color: var(--green); font-family: var(--font-mono); }
+.stat .label { font-size: 0.8rem; color: var(--text-dim); margin-top: 4px; }
+section { padding: 60px 0; border-bottom: 1px solid var(--border); }
+section:last-child { border-bottom: none; }
+h2 { font-size: 1.75rem; font-weight: 700; color: var(--text-bright); margin-bottom: 20px; display: flex; align-items: center; gap: 10px; }
+h2 .icon { font-size: 1.5rem; }
+h3 { font-size: 1.15rem; color: var(--accent); margin: 24px 0 12px; font-weight: 600; }
+p { margin-bottom: 16px; }
+pre { background: var(--bg-code); border: 1px solid var(--border); border-radius: 8px; padding: 20px; overflow-x: auto; font-family: var(--font-mono); font-size: 0.85rem; line-height: 1.5; margin: 16px 0; color: var(--text); }
+code { font-family: var(--font-mono); font-size: 0.85em; background: var(--bg-code); padding: 2px 6px; border-radius: 4px; }
+pre code { background: none; padding: 0; }
+.kw { color: var(--purple); }
+.str { color: #a5d6ff; }
+.cmt { color: var(--text-dim); font-style: italic; }
+.flag { color: var(--yellow); }
+.val { color: var(--green); }
+.arch-diagram { background: var(--bg-code); border: 1px solid var(--border); border-radius: 8px; padding: 24px 32px; font-family: var(--font-mono); font-size: 0.82rem; line-height: 1.7; overflow-x: auto; margin: 20px 0; white-space: pre; }
+.arch-diagram .proc { color: var(--accent); font-weight: 700; }
+.arch-diagram .ns { color: var(--purple); }
+.arch-diagram .port { color: var(--green); }
+.arch-diagram .dim { color: var(--text-dim); }
+table { width: 100%; border-collapse: collapse; margin: 16px 0; font-size: 0.9rem; }
+th, td { padding: 10px 14px; border: 1px solid var(--border); text-align: left; }
+th { background: var(--bg-card); color: var(--text-bright); font-weight: 600; white-space: nowrap; }
+td { vertical-align: top; }
+tr:nth-child(even) { background: rgba(22, 27, 34, 0.5); }
+.yes { color: var(--green); font-weight: 600; }
+.no { color: var(--red); }
+.partial { color: var(--yellow); }
+.features { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; margin-top: 20px; }
+.feature { background: var(--bg-card); border: 1px solid var(--border); border-radius: 8px; padding: 20px; }
+.feature .title { color: var(--green); font-weight: 700; font-size: 0.95rem; margin-bottom: 8px; }
+.feature p { color: var(--text-dim); font-size: 0.85rem; margin: 0; }
+footer { padding: 40px 0; text-align: center; color: var(--text-dim); font-size: 0.85rem; }
+footer a { color: var(--accent); }
+@media (max-width: 640px) {
+  .hero h1 { font-size: 2rem; }
+  .stats { gap: 12px; }
+  .stat { min-width: 100px; padding: 12px 16px; }
+  .stat .num { font-size: 1.25rem; }
+  pre { padding: 14px; font-size: 0.78rem; }
+  .arch-diagram { padding: 16px; font-size: 0.72rem; }
+}
+</style>
+</head>
+<body>
+
+<!-- 语言切换 -->
+<nav style="position:fixed;top:16px;right:24px;z-index:100;font-size:0.85rem;background:var(--bg-card);border:1px solid var(--border);border-radius:6px;padding:6px 14px;">
+  <a href="index.html">English</a> <span style="color:var(--text-dim);">|</span> <strong style="color:var(--text-bright);">中文</strong>
+</nav>
+
+<!-- Hero -->
+<div class="hero">
+  <div class="container">
+    <h1><span>sidecar</span></h1>
+    <p class="tagline">
+      轻量级、无需 root 的 chroot 启动器，用于在 Linux 上运行 Apple Music FairPlay
+      解密服务——提供完整的可观测性、优雅的生命周期管理，且无需 Docker。
+    </p>
+    <div class="stats">
+      <div class="stat"><div class="num">923</div><div class="label">行 C 代码</div></div>
+      <div class="stat"><div class="num">39KB</div><div class="label">二进制大小</div></div>
+      <div class="stat"><div class="num">0</div><div class="label">无需 Root</div></div>
+      <div class="stat"><div class="num">&lt;5s</div><div class="label">解密 50MB</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- 架构 -->
+<section>
+  <div class="container">
+    <h2><span class="icon">&#9881;</span> 架构</h2>
+    <p>
+      sidecar 创建一个隔离的 Linux 用户命名空间，将宿主机内核接口 bind-mount 到 Android rootfs 中，
+      然后在 chroot 内 <code>exec</code> FairPlay 解密二进制。子进程通过两个原始 TCP 端口提供
+      流式解密和 HLS URL 解析服务。
+    </p>
+    <div class="arch-diagram"><span class="proc">sidecar</span> <span class="dim">(PID 1, 用户空间)</span>
+  <span class="dim">│</span>
+  <span class="dim">├─</span> <span class="ns">unshare(CLONE_NEWUSER | CLONE_NEWNS)</span>
+  <span class="dim">│   ├─</span> 写入 /proc/self/uid_map  <span class="dim">→ 0 &lt;真实uid&gt; 1</span>
+  <span class="dim">│   └─</span> 写入 /proc/self/gid_map  <span class="dim">→ 0 &lt;真实gid&gt; 1</span>
+  <span class="dim">│</span>
+  <span class="dim">├─</span> bind-mount /dev, /proc, /sys  <span class="dim">→ rootfs/</span>
+  <span class="dim">├─</span> 同步 /etc/{resolv.conf, hosts}  <span class="dim">→ rootfs/etc/</span>
+  <span class="dim">│</span>
+  <span class="dim">├─</span> <span class="ns">chroot("./rootfs")</span>
+  <span class="dim">│   └─</span> <span class="proc">exec /system/bin/main</span> <span class="dim">(FairPlay 解密守护进程)</span>
+  <span class="dim">│       ├─</span> <span class="port">TCP :47010</span> <span class="dim">— 解密（逐 sample 流密码）</span>
+  <span class="dim">│       └─</span> <span class="port">TCP :47020</span> <span class="dim">— m3u8（HLS 主播放列表解析）</span>
+  <span class="dim">│</span>
+  <span class="dim">└─</span> <span class="proc">监管循环</span>
+      <span class="dim">├─</span> PTY 缓冲区排空  <span class="dim">(行缓冲子进程输出)</span>
+      <span class="dim">├─</span> 端口就绪门控  <span class="dim">(--wait-ports)</span>
+      <span class="dim">├─</span> SIGUSR1 → 优雅重启  <span class="dim">(重新 fork, PID 不变)</span>
+      <span class="dim">└─</span> SIGTERM → 优雅关闭  <span class="dim">(TERM → 等待 → KILL)</span></div>
+  </div>
+</section>
+
+<!-- 为什么选择 sidecar -->
+<section>
+  <div class="container">
+    <h2><span class="icon">&#9889;</span> 为什么选择 sidecar</h2>
+    <p>
+      社区已经构建了出色的 Apple Music ALAC 解密工具。sidecar 在此基础上，
+      专注解决实际生产部署中遇到的痛点：
+    </p>
+    <div class="features">
+      <div class="feature">
+        <div class="title">无需 Root 权限</div>
+        <p>通过用户命名空间隔离（<code>unshare</code>），将用户 UID 映射为命名空间内的 root。
+        无需 <code>sudo</code>，无需特权能力，无需 Docker 守护进程。</p>
+      </div>
+      <div class="feature">
+        <div class="title">完整可观测性</div>
+        <p>PTY 转发的子进程输出（行缓冲，实时可见）。<code>--json-events</code> 提供机器可解析的状态事件。
+        <code>--verbose</code> 提供人类可读的进度信息。</p>
+      </div>
+      <div class="feature">
+        <div class="title">端口就绪门控</div>
+        <p><code>--wait-ports 47010,47020</code> 会阻塞直到解密守护进程真正开始监听。
+        无需盲等或轮询。</p>
+      </div>
+      <div class="feature">
+        <div class="title">优雅生命周期管理</div>
+        <p><code>SIGUSR1</code> 在不重启 sidecar 本身的情况下重新 fork 子进程。
+        <code>SIGTERM</code> 发起可配置超时的优雅关闭。</p>
+      </div>
+      <div class="feature">
+        <div class="title">DNS 引导</div>
+        <p>自动将 <code>resolv.conf</code>、<code>hosts</code> 和
+        <code>nsswitch.conf</code> 同步到 chroot 中。避免静默的 DNS 解析失败。</p>
+      </div>
+      <div class="feature">
+        <div class="title">单 C 文件</div>
+        <p>923 行代码，除 libc + libutil 外零依赖。<code>make</code> 即可编译。
+        一个下午即可审计完整个代码库。</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 对比 -->
+<section>
+  <div class="container">
+    <h2><span class="icon">&#128200;</span> 对比</h2>
+    <p>
+      致敬并受启发于
+      <a href="https://github.com/zhaarey/wrapper">zhaarey/wrapper</a>、
+      <a href="https://github.com/glomatico/wrapper-v2">glomatico/wrapper-v2</a> 和
+      <a href="https://github.com/WorldObservationLog/wrapper">WorldObservationLog/wrapper</a>
+      等开创性工作。
+    </p>
+    <table>
+      <tr>
+        <th>特性</th>
+        <th>sidecar</th>
+        <th>wrapper</th>
+        <th>wrapper-v2</th>
+      </tr>
+      <tr>
+        <td>语言</td>
+        <td>C（923 行，开源）</td>
+        <td>C++（闭源二进制）</td>
+        <td>Rust 监管 + C++ worker</td>
+      </tr>
+      <tr>
+        <td>需要 Root</td>
+        <td class="yes">否（用户命名空间）</td>
+        <td class="yes">否（用户命名空间）</td>
+        <td class="partial">需要 Docker</td>
+      </tr>
+      <tr>
+        <td>PTY 输出</td>
+        <td class="yes">有（行缓冲）</td>
+        <td class="no">无</td>
+        <td class="no">无</td>
+      </tr>
+      <tr>
+        <td>端口就绪检测</td>
+        <td class="yes">--wait-ports（TCP 探测）</td>
+        <td class="no">无（盲启动）</td>
+        <td class="yes">监管进程管理</td>
+      </tr>
+      <tr>
+        <td>优雅重启</td>
+        <td class="yes">SIGUSR1 进程内重启</td>
+        <td class="no">进程直接退出</td>
+        <td class="yes">监管进程重新生成</td>
+      </tr>
+      <tr>
+        <td>DNS 处理</td>
+        <td class="yes">自动同步 resolv.conf</td>
+        <td class="no">未处理</td>
+        <td class="partial">Docker 处理</td>
+      </tr>
+      <tr>
+        <td>结构化事件</td>
+        <td class="yes">--json-events</td>
+        <td class="no">无</td>
+        <td class="no">无</td>
+      </tr>
+      <tr>
+        <td>优雅关闭</td>
+        <td class="yes">TERM → 等待 → KILL</td>
+        <td class="no">立即退出</td>
+        <td class="yes">监管进程处理</td>
+      </tr>
+      <tr>
+        <td>多实例</td>
+        <td class="yes">端口偏移 + aria_sidecar.py</td>
+        <td class="partial">仅手动</td>
+        <td class="no">每容器单实例</td>
+      </tr>
+      <tr>
+        <td>Docker 依赖</td>
+        <td class="yes">无</td>
+        <td class="yes">无</td>
+        <td class="no">必需</td>
+      </tr>
+      <tr>
+        <td>二进制大小</td>
+        <td><strong>39 KB</strong></td>
+        <td>20 KB</td>
+        <td>~5 MB (Rust)</td>
+      </tr>
+      <tr>
+        <td>源码可用</td>
+        <td class="yes">是</td>
+        <td class="no">否</td>
+        <td class="yes">是</td>
+      </tr>
+    </table>
+  </div>
+</section>
+
+<!-- 性能评测 -->
+<section>
+  <div class="container">
+    <h2><span class="icon">&#128202;</span> 性能评测</h2>
+    <p style="color: var(--yellow); font-style: italic;">评测数据准备中，即将更新...</p>
+    <p>我们正在对 sidecar 与 wrapper 进行全面的性能对比评测，涵盖启动时间、解密吞吐量、内存占用和多 track 稳定性等维度。</p>
+  </div>
+</section>
+
+<!-- 快速开始 -->
+<section>
+  <div class="container">
+    <h2><span class="icon">&#128640;</span> 快速开始</h2>
+
+    <h3>编译</h3>
+<pre><code><span class="cmt"># 克隆并编译</span>
+git clone https://github.com/overkazaf/sidecar.git
+cd sidecar
+make          <span class="cmt"># → ./sidecar (39 KB)</span></code></pre>
+
+    <h3>运行（从文件读取认证，无需登录）</h3>
+<pre><code>./sidecar <span class="flag">--userns</span> <span class="flag">--rootfs</span> <span class="val">./rootfs</span> <span class="flag">--bin</span> <span class="val">/system/bin/main</span> \
+  <span class="flag">--wait-ports</span> <span class="val">47010,47020</span> <span class="flag">--verbose</span> \
+  <span class="flag">--</span> -M <span class="val">47020</span> -D <span class="val">47010</span> -F</code></pre>
+
+    <h3>登录模式（首次认证）</h3>
+<pre><code>./sidecar <span class="flag">--userns</span> <span class="flag">--rootfs</span> <span class="val">./rootfs</span> <span class="flag">--bin</span> <span class="val">/system/bin/main</span> \
+  <span class="flag">--wait-ports</span> <span class="val">47010,47020</span> <span class="flag">--verbose</span> \
+  <span class="flag">--</span> -M <span class="val">47020</span> -D <span class="val">47010</span> --login=<span class="val">user@host:pass</span></code></pre>
+
+    <h3>多实例（4 个并行解密 worker）</h3>
+<pre><code><span class="kw">for</span> i <span class="kw">in</span> 0 1 2 3; <span class="kw">do</span>
+  ./sidecar <span class="flag">--userns</span> <span class="flag">--rootfs</span> <span class="val">./rootfs</span> <span class="flag">--bin</span> <span class="val">/system/bin/main</span> \
+    <span class="flag">--wait-ports</span> <span class="val">$((47010+i)),$((47020+i))</span> \
+    <span class="flag">--</span> -M <span class="val">$((47020+i))</span> -D <span class="val">$((47010+i))</span> -F &amp;
+<span class="kw">done</span></code></pre>
+
+    <h3>优雅重启（刷新认证无需重启 sidecar）</h3>
+<pre><code>kill -USR1 <span class="val">$(pgrep -f sidecar)</span></code></pre>
+  </div>
+</section>
+
+<!-- CLI 参考 -->
+<section>
+  <div class="container">
+    <h2><span class="icon">&#128736;</span> 命令行参数</h2>
+    <table>
+      <tr><th>参数</th><th>默认值</th><th>说明</th></tr>
+      <tr><td><code>--rootfs PATH</code></td><td><code>./rootfs</code></td><td>Android rootfs 目录</td></tr>
+      <tr><td><code>--bin PATH</code></td><td><code>/system/bin/main</code></td><td>chroot 内执行的二进制文件</td></tr>
+      <tr><td><code>--userns</code></td><td>开启</td><td>使用用户命名空间（无需 root）。<code>--no-userns</code> 使用真实 chroot</td></tr>
+      <tr><td><code>--wait-ports P,P</code></td><td>&mdash;</td><td>阻塞直到指定 TCP 端口响应</td></tr>
+      <tr><td><code>--wait-timeout N</code></td><td>120</td><td>等待端口就绪的超时秒数</td></tr>
+      <tr><td><code>--grace-secs N</code></td><td>10</td><td>SIGTERM 与 SIGKILL 之间的等待秒数</td></tr>
+      <tr><td><code>--verbose</code></td><td>关闭</td><td>向 stderr 输出设置步骤</td></tr>
+      <tr><td><code>--json-events</code></td><td>关闭</td><td>在 stderr 输出机器可读的 JSON 状态</td></tr>
+      <tr><td><code>--pid-file PATH</code></td><td>&mdash;</td><td>写入子进程 PID，用于 systemd/k8s 探测</td></tr>
+      <tr><td><code>--ready-fd N</code></td><td>&mdash;</td><td>端口就绪时向 fd N 写入 <code>\1\n</code></td></tr>
+      <tr><td><code>--</code></td><td>&mdash;</td><td>之后的所有参数原样传递给子进程</td></tr>
+    </table>
+  </div>
+</section>
+
+<!-- 通信协议 -->
+<section>
+  <div class="container">
+    <h2><span class="icon">&#128268;</span> 通信协议</h2>
+    <p>
+      FairPlay 解密二进制暴露两个原始 TCP 端口。均为本地无认证、长度前缀的二进制帧格式。
+    </p>
+
+    <h3>端口 47020 — m3u8（获取流地址）</h3>
+    <p>将 Apple Music <code>adamId</code> 解析为 enhanced-HLS 主播放列表 URL。</p>
+<pre><code><span class="cmt">客户端 → 服务端:</span>  <span class="val">0a</span> <span class="str">31 34 34 30 38 34 31 32 36 33</span>
+                  <span class="dim">└─┘ └────── '1440841263' ──────┘</span>
+                  <span class="dim">长度</span>
+
+<span class="cmt">服务端 → 客户端:</span>  <span class="str">"https://aod-ssl.itunes.apple.com/...master.m3u8\n"</span></code></pre>
+
+    <h3>端口 47010 — 解密（逐 sample）</h3>
+    <p>全双工流水线流密码通道。每个连接支持多个 key context。</p>
+<pre><code><span class="cmt"># Key context 头（每个 key 一次）:</span>
+<span class="val">len(adamId)</span> <span class="str">adamId</span> <span class="val">len(keyUri)</span> <span class="str">keyUri</span>
+
+<span class="cmt"># 每个 sample（重复）:</span>
+<span class="val">LE-uint32 sample_len</span> <span class="str">密文[sample_len]</span>  <span class="dim">→</span>  <span class="str">明文[sample_len]</span>
+
+<span class="cmt"># 结束 context:</span>
+<span class="val">00 00 00 00</span></code></pre>
+  </div>
+</section>
+
+<!-- 与 aria 集成 -->
+<section>
+  <div class="container">
+    <h2><span class="icon">&#128279;</span> 与 aria 集成</h2>
+    <p>
+      <a href="https://github.com/overkazaf/aria">aria</a> 是编排完整 ALAC 流水线的 HTTP API 服务：
+      Apple 目录查询 → HLS 下载 → 通过 sidecar 进行 FairPlay 解密 → m4a 输出。
+    </p>
+<pre><code><span class="cmt"># aria_sidecar.py 管理 N 个 sidecar 实例</span>
+python3 aria_sidecar.py -F --instances <span class="val">4</span>
+
+<span class="cmt"># aria 服务器在实例间轮询分发解密请求</span>
+ARIA_INSTANCES=<span class="val">4</span> python3 server.py --port <span class="val">8899</span>
+
+<span class="cmt"># 下载 Hi-Res ALAC</span>
+curl -H <span class="str">"Authorization: Bearer $TOKEN"</span> \
+  <span class="str">"http://localhost:8899/download/1440841263?fmt=alac"</span> \
+  -o song.m4a</code></pre>
+  </div>
+</section>
+
+<!-- 页脚 -->
+<footer>
+  <div class="container">
+    <p>
+      <strong>sidecar</strong> &mdash; MIT 许可证 &mdash;
+      <a href="https://github.com/overkazaf/sidecar">GitHub</a>
+    </p>
+    <p style="margin-top: 8px;">
+      致敬
+      <a href="https://github.com/zhaarey/wrapper">zhaarey/wrapper</a>、
+      <a href="https://github.com/glomatico/wrapper-v2">glomatico/wrapper-v2</a> 和
+      <a href="https://github.com/WorldObservationLog/wrapper">WorldObservationLog/wrapper</a>
+    </p>
+  </div>
+</footer>
+
+</body>
+</html>
