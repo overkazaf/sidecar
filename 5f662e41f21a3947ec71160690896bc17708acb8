@@ -1,0 +1,43 @@
+sidecar.c
+  7fca30ff5809315c 662
+README_CN.md
+  7fca30ff5809315c 1-183
+README.md
+  7fca30ff5809315c 1,5,11,50,54,74,194
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.2.8-ntes.9",
+  "base_commit_sha": "5f662e41f21a3947ec71160690896bc17708acb8",
+  "prompts": {
+    "7fca30ff5809315c": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "e3fd8795-f7b7-4095-8a46-6709ec55ba53",
+        "model": "claude-opus-4-6"
+      },
+      "human_author": "nongjiawu",
+      "messages": [],
+      "total_additions": 191,
+      "total_deletions": 8,
+      "accepted_lines": 191,
+      "overriden_lines": 0,
+      "per_file_stats": {
+        "README_CN.md": {
+          "additions": 183,
+          "accepted_lines": 183
+        },
+        "sidecar.c": {
+          "additions": 1,
+          "deletions": 1,
+          "accepted_lines": 1
+        },
+        "README.md": {
+          "additions": 7,
+          "deletions": 7,
+          "accepted_lines": 7
+        }
+      }
+    }
+  }
+}
