@@ -211,6 +211,22 @@ RestartSec=5
 WantedBy=multi-user.target
 ```
 
+## Performance Benchmarks
+
+Tested on Dell PowerEdge R730 (80 cores, 94 GB RAM, Ubuntu 22.04).
+
+| Metric | wrapper_new | sidecar v3 | Delta |
+|--------|-------------|------------|-------|
+| **Cold startup** (median of 3) | 3633 ms | 3391 ms | **-7%** |
+| **Decrypt throughput** (median of 5) | 15.0 MB/s | 15.3 MB/s | **+2%** |
+| **Decrypt latency** | 3.178s | 3.120s | **-2%** |
+| **5-track sequential** | 5/5 | 5/5 | tie |
+| **Memory (launcher + main)** | 60.2 MB | 60.2 MB | tie |
+| **E2E cold** (download + decrypt + write + tag) | — | 8.8s | — |
+| **Source code** | closed binary | 935 lines C | open |
+
+Full methodology: [docs/BENCHMARK.md](docs/BENCHMARK.md)
+
 ## License
 
 MIT — see [LICENSE](LICENSE).

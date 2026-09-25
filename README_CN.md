@@ -178,6 +178,22 @@ Restart=on-failure
 WantedBy=multi-user.target
 ```
 
+## 性能评测
+
+测试环境：Dell PowerEdge R730（80 核，94 GB 内存，Ubuntu 22.04）。
+
+| 指标 | wrapper_new | sidecar v3 | 差异 |
+|------|-------------|------------|------|
+| **冷启动** | 3633 ms | 3391 ms | **快 7%** |
+| **解密吞吐** | 15.0 MB/s | 15.3 MB/s | **快 2%** |
+| **解密延迟** | 3.178s | 3.120s | **快 2%** |
+| **5 track 稳定性** | 5/5 | 5/5 | 持平 |
+| **内存** | 60.2 MB | 60.2 MB | 持平 |
+| **端到端** | — | 8.8s | — |
+| **源码** | 闭源 | 935 行 C | 开源 |
+
+详细数据：[docs/BENCHMARK.md](docs/BENCHMARK.md)
+
 ## 许可证
 
 MIT — 见 [LICENSE](LICENSE)。
