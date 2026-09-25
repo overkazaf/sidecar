@@ -6,20 +6,21 @@
 <title>sidecar — FairPlay 解密边车服务</title>
 <style>
 :root {
-  --bg: #0d1117;
-  --bg-card: #161b22;
-  --bg-code: #1c2128;
-  --border: #30363d;
-  --text: #c9d1d9;
-  --text-dim: #8b949e;
-  --text-bright: #f0f6fc;
-  --accent: #58a6ff;
-  --green: #3fb950;
-  --yellow: #d29922;
-  --red: #f85149;
-  --purple: #bc8cff;
+  --bg: #ffffff;
+  --bg-card: #f6f8fa;
+  --bg-code: #f0f2f5;
+  --border: #d0d7de;
+  --text: #1f2328;
+  --text-dim: #656d76;
+  --text-bright: #1f2328;
+  --accent: #0969da;
+  --green: #1a7f37;
+  --yellow: #9a6700;
+  --red: #cf222e;
+  --purple: #8250df;
+  --orange: #bc4c00;
   --font-mono: 'SF Mono', 'Fira Code', 'Cascadia Code', Consolas, monospace;
-  --font-sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', Helvetica, Arial, sans-serif;
+  --font-sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
 }
 * { margin: 0; padding: 0; box-sizing: border-box; }
 body {
@@ -53,21 +54,21 @@ p { margin-bottom: 16px; }
 pre { background: var(--bg-code); border: 1px solid var(--border); border-radius: 8px; padding: 20px; overflow-x: auto; font-family: var(--font-mono); font-size: 0.85rem; line-height: 1.5; margin: 16px 0; color: var(--text); }
 code { font-family: var(--font-mono); font-size: 0.85em; background: var(--bg-code); padding: 2px 6px; border-radius: 4px; }
 pre code { background: none; padding: 0; }
-.kw { color: var(--purple); }
-.str { color: #a5d6ff; }
+.kw { color: #8250df; }
+.str { color: #0550ae; }
 .cmt { color: var(--text-dim); font-style: italic; }
 .flag { color: var(--yellow); }
 .val { color: var(--green); }
 .arch-diagram { background: var(--bg-code); border: 1px solid var(--border); border-radius: 8px; padding: 24px 32px; font-family: var(--font-mono); font-size: 0.82rem; line-height: 1.7; overflow-x: auto; margin: 20px 0; white-space: pre; }
 .arch-diagram .proc { color: var(--accent); font-weight: 700; }
-.arch-diagram .ns { color: var(--purple); }
+.arch-diagram .ns { color: #8250df; }
 .arch-diagram .port { color: var(--green); }
 .arch-diagram .dim { color: var(--text-dim); }
 table { width: 100%; border-collapse: collapse; margin: 16px 0; font-size: 0.9rem; }
 th, td { padding: 10px 14px; border: 1px solid var(--border); text-align: left; }
 th { background: var(--bg-card); color: var(--text-bright); font-weight: 600; white-space: nowrap; }
 td { vertical-align: top; }
-tr:nth-child(even) { background: rgba(22, 27, 34, 0.5); }
+tr:nth-child(even) { background: #f6f8fa; }
 .yes { color: var(--green); font-weight: 600; }
 .no { color: var(--red); }
 .partial { color: var(--yellow); }
@@ -95,13 +96,13 @@ footer a { color: var(--accent); }
   display: flex;
   align-items: center;
   gap: 2px;
-  background: rgba(30, 35, 45, 0.95);
+  background: rgba(255, 255, 255, 0.95);
   backdrop-filter: blur(8px);
-  border: 1px solid rgba(100, 120, 150, 0.3);
+  border: 1px solid rgba(0, 0, 0, 0.12);
   border-radius: 20px;
   padding: 4px;
   font-size: 13px;
-  box-shadow: 0 2px 12px rgba(0,0,0,0.3);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
 }
 .lang-switch .lang-icon {
   padding: 4px 6px;
@@ -111,15 +112,15 @@ footer a { color: var(--accent); }
   padding: 6px 14px;
   border-radius: 16px;
   text-decoration: none;
-  color: #8b949e;
+  color: #656d76;
   transition: all 0.2s;
 }
 .lang-switch .active {
-  background: #238636;
+  background: #0969da;
   color: #fff;
 }
 .lang-switch a:hover {
-  color: #fff;
+  color: #1f2328;
   text-decoration: none;
 }
 </style>
