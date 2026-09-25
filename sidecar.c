@@ -659,7 +659,7 @@ static pid_t spawn_child(const char *rootfs, const char *bin,
 
 static void usage(const char *argv0) {
     fprintf(stderr,
-        "am-sidecar — rootless chroot launcher for FairPlay decrypt\n"
+        "sidecar — rootless chroot launcher for FairPlay decrypt\n"
         "\n"
         "Usage:\n"
         "  %s [sidecar-flags...] [--] [child-args...]\n"

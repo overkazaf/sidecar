@@ -1,14 +1,14 @@
-# am-sidecar
+# sidecar
 
 A lightweight, rootless chroot launcher for running Apple Music FairPlay DRM decrypt binaries on Linux.
 
-`am-sidecar` manages the lifecycle of an Android-based decrypt daemon inside a chroot environment, providing PTY-based output forwarding, port readiness detection, graceful restart, and user namespace isolation — all without requiring root privileges.
+`sidecar` manages the lifecycle of an Android-based decrypt daemon inside a chroot environment, providing PTY-based output forwarding, port readiness detection, graceful restart, and user namespace isolation — all without requiring root privileges.
 
 ## Architecture
 
 ```
                          ┌──────────────────────────────────────┐
-                         │           am-sidecar (39 KB)         │
+                         │           sidecar (39 KB)         │
                          │                                      │
   SIGUSR1 ──────────────►│  ┌─ signal handler ────────────┐     │
   SIGTERM ──────────────►│  │  forward / grace / restart  │     │
@@ -47,11 +47,11 @@ This project is inspired by and builds upon the pioneering work of the Apple Mus
 - [**glomatico/wrapper-v2**](https://github.com/glomatico/wrapper-v2) — Rust-based supervisor with Docker isolation
 - [**WorldObservationLog/AppleMusicDecrypt**](https://github.com/WorldObservationLog/AppleMusicDecrypt) — comprehensive Apple Music decrypt toolkit
 
-`am-sidecar` addresses several limitations encountered when deploying wrapper in production environments — particularly around rootless operation, observability, and process lifecycle management.
+`sidecar` addresses several limitations encountered when deploying wrapper in production environments — particularly around rootless operation, observability, and process lifecycle management.
 
 ## Advantages over wrapper
 
-| Capability | wrapper | am-sidecar |
+| Capability | wrapper | sidecar |
 |---|---|---|
 | **Root required** | No (user namespace) | **No** (user namespace) |
 | **Source available** | Closed binary (20 KB) | **Open C source** (923 lines) |
@@ -71,7 +71,7 @@ This project is inspired by and builds upon the pioneering work of the Apple Mus
 
 1. **User namespace isolation** — `unshare(CLONE_NEWUSER | CLONE_NEWNS)` creates an isolated namespace where the process maps itself to uid 0. This enables `chroot()`, `mount()`, and device access without any real root privileges. The host system is never modified.
 
-2. **PTY output forwarding** — wrapper's child stdout is fully buffered by libc (default for non-TTY pipes), making login progress and decrypt status invisible. am-sidecar allocates a PTY via `openpty()`, switching the child to line-buffered mode so all output surfaces in real time.
+2. **PTY output forwarding** — wrapper's child stdout is fully buffered by libc (default for non-TTY pipes), making login progress and decrypt status invisible. sidecar allocates a PTY via `openpty()`, switching the child to line-buffered mode so all output surfaces in real time.
 
 3. **Port readiness gate** — `--wait-ports 47010,47020` polls each port with non-blocking TCP connects on a 200ms tick, interleaved with PTY draining. This prevents the chatty child's output from filling the PTY buffer while waiting. Callers know exactly when the service is ready.
 
@@ -191,7 +191,7 @@ python3 aria_sidecar.py -F --instances 4
 
 ```ini
 [Unit]
-Description=am-sidecar FairPlay decrypt
+Description=sidecar FairPlay decrypt
 
 [Service]
 Type=notify
