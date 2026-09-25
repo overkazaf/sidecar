@@ -1,4 +1,3 @@
-Warning: Permanently added 'drivers-respectively-libs-caribbean.trycloudflare.com' (ED25519) to the list of known hosts.
 /*
  * sidecar — chroot launcher for am_alac_decryptor's `wrapper` binary.
  *
@@ -351,7 +350,7 @@ static int probe_port(unsigned short port, int timeout_ms) {
 
 /* Per-spawn port-wait state. Owned by supervise_until_done().
  *
- * The supervise loop's poll() schedules a 200ms tick whenever
+ * The supervise loop's poll() schedules a 50ms tick whenever
  * `tick_due_ms <= now_ms()`. On each tick we probe any unseen ports
  * non-blockingly. When all_seen flips to 1 we emit `port_ready_all` (and
  * the caller signals the ready_fd). When `timeout_at_ms` is exceeded
@@ -479,7 +478,7 @@ static SuperviseEnd supervise_until_done(pid_t child, int master_fd,
             int all_seen = 1;
             for (size_t i = 0; i < pw->n_ports; i++) {
                 if (pw->seen[i]) continue;
-                if (probe_port(pw->ports[i], 30)) {  /* 30ms probe timeout (loopback is instant) */
+                if (probe_port(pw->ports[i], 100)) {
                     pw->seen[i] = 1;
                     char json[64], plain[64];
                     snprintf(json,  sizeof json,  ",\"port\":%u", pw->ports[i]);
@@ -505,7 +504,7 @@ static SuperviseEnd supervise_until_done(pid_t child, int master_fd,
                 pw->success  = 0;
                 evt("port_probe_timeout");
             } else {
-                pw->tick_due_ms = now_ms() + 50;  /* 50ms probe tick (was 200ms) */
+                pw->tick_due_ms = now_ms() + 50;
             }
         }
         (void)n;
@@ -596,17 +595,8 @@ static pid_t spawn_child(const char *rootfs, const char *bin,
                          int use_pty, int *master_fd_out) {
     int master_fd = -1, slave_fd = -1;
 
-    /* Step 1: PTY allocation BEFORE any namespace changes (needs /dev/pts).
-     * In userns mode, /dev/pts is often unavailable — default to pipe for speed.
-     * Use --force-pty to override. */
-    if (use_pty && g_userns) {
-        /* Try openpty but don't warn on expected userns failure */
-        if (openpty(&master_fd, &slave_fd, NULL, NULL, NULL) < 0) {
-            use_pty = 0;  /* silent fallback to pipe — expected in userns */
-        } else {
-            fcntl(master_fd, F_SETFL, O_NONBLOCK);
-        }
-    } else if (use_pty) {
+    /* Step 1: PTY allocation BEFORE any namespace changes (needs /dev/pts) */
+    if (use_pty) {
         if (openpty(&master_fd, &slave_fd, NULL, NULL, NULL) < 0) {
             fprintf(stderr, "[sidecar] (warn) openpty failed: %s — falling back to pipe mode\n",
                     strerror(errno));
@@ -623,19 +613,26 @@ static pid_t spawn_child(const char *rootfs, const char *bin,
     if (g_userns) {
         saved_uid = getuid();
         saved_gid = getgid();
-        if (unshare(CLONE_NEWUSER | CLONE_NEWNS | CLONE_NEWPID) < 0) {
-            fprintf(stderr, "[sidecar] FATAL: unshare(NEWUSER|NEWNS) failed: %s\n"
+        if (unshare(CLONE_NEWUSER | CLONE_NEWPID) < 0) {
+            fprintf(stderr, "[sidecar] FATAL: unshare(NEWUSER|NEWPID) failed: %s\n"
                     "  Ensure /proc/sys/kernel/unprivileged_userns_clone == 1\n",
                     strerror(errno));
             _exit(1);
         }
         setup_userns(saved_uid, saved_gid);
-        /* We are now uid 0 inside the namespace — mounts work */
-        bind_mount_dev(rootfs);
-        bind_mount_proc_sys(rootfs);
-        /* DNS seed skipped in userns: fake uid 0 can't write to host-owned rootfs/etc,
-         * and main doesn't need DNS (it uses IPs or parent-resolved hostnames). */
-        vlog("namespace setup complete, forking child");
+        /* With CLONE_NEWUSER|CLONE_NEWPID (no CLONE_NEWNS) (no CLONE_NEWNS), we cannot do bind-mounts
+         * inside the namespace. Mounts must be done externally (e.g. by
+         * aria_sidecar.py via sudo mount --bind). Just verify /dev/urandom
+         * exists in rootfs and warn if not. */
+        {
+            char urandom_path[4096];
+            snprintf(urandom_path, sizeof urandom_path, "%s/dev/urandom", rootfs);
+            if (access(urandom_path, R_OK) != 0)
+                fprintf(stderr, "[sidecar] (warn) %s not accessible — "
+                        "run: sudo mount --bind /dev/urandom %s\n",
+                        urandom_path, urandom_path);
+        }
+        vlog("namespace setup complete (CLONE_NEWUSER|CLONE_NEWPID (no CLONE_NEWNS)), forking child");
     }
 
     /* Step 3: Fork — child inherits the namespace */
@@ -827,7 +824,7 @@ int main(int argc, char *argv[], char *envp[]) {
         /* Real-root mode: create device nodes via mknod (needs CAP_MKNOD) */
         seed_chroot_dev(rootfs);
     }
-    /* In userns mode, /dev bind-mount happens in the child after unshare() */
+    /* In userns mode, /dev/urandom must be mounted externally (no CLONE_NEWNS) */
     evt("chroot_ready");
 
     vlog("userns = %s", g_userns ? "yes (no root needed)" : "no (real chroot)");
