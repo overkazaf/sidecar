@@ -1,0 +1,30 @@
+sidecar.c
+  7fca30ff5809315c 1,482,508,599-609,636-637
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.2.8-ntes.9",
+  "base_commit_sha": "1c37ac84626b261963f0447bac84bfac29fad115",
+  "prompts": {
+    "7fca30ff5809315c": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "e3fd8795-f7b7-4095-8a46-6709ec55ba53",
+        "model": "claude-opus-4-6"
+      },
+      "human_author": "overkazaf",
+      "messages": [],
+      "total_additions": 16,
+      "total_deletions": 6,
+      "accepted_lines": 16,
+      "overriden_lines": 0,
+      "per_file_stats": {
+        "sidecar.c": {
+          "additions": 16,
+          "deletions": 6,
+          "accepted_lines": 16
+        }
+      }
+    }
+  }
+}
