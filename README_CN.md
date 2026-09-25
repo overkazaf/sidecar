@@ -181,18 +181,23 @@ WantedBy=multi-user.target
 ## 性能评测
 
 测试环境：Dell PowerEdge R730（80 核，94 GB 内存，Ubuntu 22.04）。
+测试曲目：2650 samples，47.7 MB ALAC 24-bit/48kHz。
 
-| 指标 | wrapper_new | sidecar v3 | 差异 |
+| 指标 | wrapper_new | sidecar v3 | 说明 |
 |------|-------------|------------|------|
-| **冷启动** | 3633 ms | 3391 ms | **快 7%** |
-| **解密吞吐** | 15.0 MB/s | 15.3 MB/s | **快 2%** |
-| **解密延迟** | 3.178s | 3.120s | **快 2%** |
-| **5 track 稳定性** | 5/5 | 5/5 | 持平 |
-| **内存** | 60.2 MB | 60.2 MB | 持平 |
-| **端到端** | — | 8.8s | — |
-| **源码** | 闭源 | 935 行 C | 开源 |
+| **冷启动** | 2338 ms | 3391 ms | wrapper 更快（无 PTY 开销） |
+| **解密 pipelined** | 3.18s (15.0 MB/s) | 3.12s (15.3 MB/s) | 基本持平 |
+| **解密 serial** | 3.51s (13.6 MB/s) | 4.36s (10.9 MB/s) | wrapper 更快（更轻量的命名空间） |
+| **内存** | 53.8 MB | 60.2 MB | wrapper 更轻量 |
+| **源码** | 闭源二进制 | 935 行 C | sidecar 可审计 |
+| **PTY 输出** | 无 | 有 | sidecar 独有 |
+| **端口就绪检测** | 无 | --wait-ports | sidecar 独有 |
+| **优雅重启** | 无 | SIGUSR1 | sidecar 独有 |
+
+**结论**：wrapper 在启动和串行解密上快 20-30%（更轻量的实现）。在 pipelined 模式下（生产环境使用），两者性能基本一致（~15 MB/s）。sidecar 的优势在可运维性——可观测性、生命周期管理和开源代码。
 
 详细数据：[docs/BENCHMARK.md](docs/BENCHMARK.md)
+
 
 ## 许可证
 

@@ -213,19 +213,28 @@ WantedBy=multi-user.target
 
 ## Performance Benchmarks
 
-Tested on Dell PowerEdge R730 (80 cores, 94 GB RAM, Ubuntu 22.04).
+Tested on Dell PowerEdge R730 (80 cores, 94 GB RAM, Ubuntu 22.04).  
+Track: 2650 samples, 47.7 MB ALAC 24-bit/48kHz.
 
-| Metric | wrapper_new | sidecar v3 | Delta |
+| Metric | wrapper_new | sidecar v3 | Notes |
 |--------|-------------|------------|-------|
-| **Cold startup** (median of 3) | 3633 ms | 3391 ms | **-7%** |
-| **Decrypt throughput** (median of 5) | 15.0 MB/s | 15.3 MB/s | **+2%** |
-| **Decrypt latency** | 3.178s | 3.120s | **-2%** |
-| **5-track sequential** | 5/5 | 5/5 | tie |
-| **Memory (launcher + main)** | 60.2 MB | 60.2 MB | tie |
-| **E2E cold** (download + decrypt + write + tag) | — | 8.8s | — |
-| **Source code** | closed binary | 935 lines C | open |
+| **Cold startup** | 2338 ms | 3391 ms | wrapper faster (no PTY overhead) |
+| **Decrypt pipelined** | 3.18s (15.0 MB/s) | 3.12s (15.3 MB/s) | Effectively tied |
+| **Decrypt serial** | 3.51s (13.6 MB/s) | 4.36s (10.9 MB/s) | wrapper faster (leaner namespace) |
+| **Memory** | 53.8 MB | 60.2 MB | wrapper leaner |
+| **5-track stability** | 5/5 | 5/5 | Both stable |
+| **Source code** | closed binary | 935 lines C | sidecar is auditable |
+| **PTY output** | no | yes | sidecar only |
+| **Port readiness** | no | --wait-ports | sidecar only |
+| **Graceful restart** | no | SIGUSR1 | sidecar only |
+| **Crash recovery** | process exits | auto re-fork | sidecar only |
 
-Full methodology: [docs/BENCHMARK.md](docs/BENCHMARK.md)
+**Bottom line**: wrapper is ~20-30% faster in startup and serial decrypt due to its leaner implementation. In pipelined mode (the production path), both are effectively identical at ~15 MB/s. sidecar's advantages are in operability — visibility, lifecycle management, and open source code.
+
+The 57x speedup (193s to 3.4s per track) comes from TCP_NODELAY + pipelining in the client (`aria_rpc.py`), not the launcher — both sidecar and wrapper benefit equally.
+
+Full methodology and raw data: [docs/BENCHMARK.md](docs/BENCHMARK.md)
+
 
 ## License
 
