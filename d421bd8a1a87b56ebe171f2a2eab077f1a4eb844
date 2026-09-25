@@ -1,0 +1,37 @@
+README_CN.md
+  7fca30ff5809315c 52-70
+README.md
+  7fca30ff5809315c 52-70
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.2.8-ntes.9",
+  "base_commit_sha": "d421bd8a1a87b56ebe171f2a2eab077f1a4eb844",
+  "prompts": {
+    "7fca30ff5809315c": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "e3fd8795-f7b7-4095-8a46-6709ec55ba53",
+        "model": "claude-opus-4-6"
+      },
+      "human_author": "overkazaf",
+      "messages": [],
+      "total_additions": 38,
+      "total_deletions": 55,
+      "accepted_lines": 38,
+      "overriden_lines": 0,
+      "per_file_stats": {
+        "README_CN.md": {
+          "additions": 19,
+          "deletions": 26,
+          "accepted_lines": 19
+        },
+        "README.md": {
+          "additions": 19,
+          "deletions": 29,
+          "accepted_lines": 19
+        }
+      }
+    }
+  }
+}
