@@ -1,0 +1,30 @@
+docs/index.html
+  7fca30ff5809315c 6-7,10-15,17-33,35-36,39-54,57-61,64,66-74,77-92,95-97,101-103,106-107,110-113,116-117,127,129-132,134-137,141,143,145-151,153,157-161,163-179,183-186,189-244,246-248,250-251,256-259,261-295,299-302,304-348,352-372,375-386,389-401,404-418,422,424-425,428-438,441-486,490-493,495-521,525-530,533,536,538,541-550,553-556,559-561,563-568,570-575,577-582,584-590,592-596,598
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.2.8-ntes.9",
+  "base_commit_sha": "e1a4fd4b61330237305feb696829ff153a3cb7b9",
+  "prompts": {
+    "7fca30ff5809315c": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "e3fd8795-f7b7-4095-8a46-6709ec55ba53",
+        "model": "claude-opus-4-6"
+      },
+      "human_author": "overkazaf",
+      "messages": [],
+      "total_additions": 500,
+      "total_deletions": 641,
+      "accepted_lines": 500,
+      "overriden_lines": 0,
+      "per_file_stats": {
+        "docs/index.html": {
+          "additions": 500,
+          "deletions": 641,
+          "accepted_lines": 500
+        }
+      }
+    }
+  }
+}
