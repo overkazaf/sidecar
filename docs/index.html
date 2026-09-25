@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>sidecar — FairPlay Decrypt Sidecar</title>
+<title>sidecar — Technical Deep Dive</title>
 <style>
 :root {
   --bg: #0d1117;
@@ -18,6 +18,7 @@
   --yellow: #d29922;
   --red: #f85149;
   --purple: #bc8cff;
+  --orange: #d18616;
   --font-mono: 'SF Mono', 'Fira Code', 'Cascadia Code', Consolas, monospace;
   --font-sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
 }
@@ -26,520 +27,671 @@ body {
   background: var(--bg);
   color: var(--text);
   font-family: var(--font-sans);
-  line-height: 1.6;
+  line-height: 1.7;
   -webkit-font-smoothing: antialiased;
 }
 a { color: var(--accent); text-decoration: none; }
 a:hover { text-decoration: underline; }
+.container { max-width: 880px; margin: 0 auto; padding: 0 24px; }
 
-.container { max-width: 960px; margin: 0 auto; padding: 0 24px; }
+/* Nav */
+nav {
+  position: sticky; top: 0; z-index: 100;
+  background: rgba(13,17,23,0.92); backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border);
+  padding: 12px 24px;
+  display: flex; justify-content: space-between; align-items: center;
+}
+nav .brand { font-weight: 700; color: var(--text-bright); font-size: 1.1rem; }
+nav .brand span { color: var(--accent); }
+nav .links { display: flex; gap: 16px; font-size: 0.85rem; }
+nav .links a { color: var(--text-dim); }
+nav .links a:hover { color: var(--text-bright); text-decoration: none; }
 
 /* Hero */
-.hero {
-  text-align: center;
-  padding: 80px 0 60px;
-  border-bottom: 1px solid var(--border);
-}
-.hero h1 {
-  font-size: 3rem;
-  font-weight: 800;
-  color: var(--text-bright);
-  letter-spacing: -0.02em;
-}
+.hero { text-align: center; padding: 80px 0 48px; border-bottom: 1px solid var(--border); }
+.hero h1 { font-size: 2.8rem; font-weight: 800; color: var(--text-bright); letter-spacing: -0.02em; }
 .hero h1 span { color: var(--accent); }
-.hero .tagline {
-  font-size: 1.25rem;
-  color: var(--text-dim);
-  margin-top: 12px;
-  max-width: 640px;
-  margin-left: auto;
-  margin-right: auto;
-}
-.stats {
-  display: flex;
-  justify-content: center;
-  gap: 32px;
-  margin-top: 32px;
-  flex-wrap: wrap;
-}
-.stat {
-  background: var(--bg-card);
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  padding: 16px 24px;
-  text-align: center;
-  min-width: 140px;
-}
-.stat .num {
-  font-size: 1.75rem;
-  font-weight: 700;
-  color: var(--green);
-  font-family: var(--font-mono);
-}
-.stat .label {
-  font-size: 0.8rem;
-  color: var(--text-dim);
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  margin-top: 4px;
-}
+.hero .tagline { font-size: 1.15rem; color: var(--text-dim); margin-top: 12px; max-width: 680px; margin-left: auto; margin-right: auto; }
+.hero .meta { margin-top: 20px; font-size: 0.85rem; color: var(--text-dim); }
+.stats { display: flex; justify-content: center; gap: 24px; margin-top: 28px; flex-wrap: wrap; }
+.stat { background: var(--bg-card); border: 1px solid var(--border); border-radius: 8px; padding: 14px 20px; text-align: center; min-width: 120px; }
+.stat .num { font-size: 1.5rem; font-weight: 700; color: var(--green); font-family: var(--font-mono); }
+.stat .label { font-size: 0.75rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.05em; margin-top: 2px; }
+
+/* TOC */
+.toc { background: var(--bg-card); border: 1px solid var(--border); border-radius: 8px; padding: 24px 28px; margin: 40px 0; }
+.toc h3 { color: var(--text-bright); margin-bottom: 12px; font-size: 1rem; }
+.toc ol { padding-left: 20px; columns: 2; column-gap: 40px; }
+.toc li { margin-bottom: 6px; font-size: 0.9rem; break-inside: avoid; }
+.toc li a { color: var(--text-dim); }
+.toc li a:hover { color: var(--accent); }
 
 /* Sections */
-section { padding: 60px 0; border-bottom: 1px solid var(--border); }
+section { padding: 48px 0; border-bottom: 1px solid var(--border); }
 section:last-child { border-bottom: none; }
-h2 {
-  font-size: 1.75rem;
-  font-weight: 700;
-  color: var(--text-bright);
-  margin-bottom: 20px;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-h2 .icon { font-size: 1.5rem; }
-h3 {
-  font-size: 1.15rem;
-  color: var(--accent);
-  margin: 24px 0 12px;
-  font-weight: 600;
-}
-p { margin-bottom: 16px; }
+h2 { font-size: 1.6rem; font-weight: 700; color: var(--text-bright); margin-bottom: 16px; padding-top: 8px; }
+h2 .icon { font-size: 1.3rem; margin-right: 4px; }
+h3 { font-size: 1.1rem; color: var(--accent); margin: 28px 0 10px; font-weight: 600; }
+h4 { font-size: 0.95rem; color: var(--purple); margin: 20px 0 8px; font-weight: 600; }
+p { margin-bottom: 14px; }
+ul, ol { margin-bottom: 14px; padding-left: 24px; }
+li { margin-bottom: 6px; }
 
-/* Code blocks */
-pre {
-  background: var(--bg-code);
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  padding: 20px;
-  overflow-x: auto;
-  font-family: var(--font-mono);
-  font-size: 0.85rem;
-  line-height: 1.5;
-  margin: 16px 0;
-  color: var(--text);
-}
-code {
-  font-family: var(--font-mono);
-  font-size: 0.85em;
-  background: var(--bg-code);
-  padding: 2px 6px;
-  border-radius: 4px;
-}
+/* Code */
+pre { background: var(--bg-code); border: 1px solid var(--border); border-radius: 8px; padding: 18px; overflow-x: auto; font-family: var(--font-mono); font-size: 0.82rem; line-height: 1.55; margin: 14px 0; color: var(--text); }
+code { font-family: var(--font-mono); font-size: 0.84em; background: var(--bg-code); padding: 2px 6px; border-radius: 4px; }
 pre code { background: none; padding: 0; }
 .kw { color: var(--purple); }
 .str { color: #a5d6ff; }
 .cmt { color: var(--text-dim); font-style: italic; }
-.flag { color: var(--yellow); }
 .val { color: var(--green); }
+.flag { color: var(--yellow); }
 
-/* Architecture diagram */
-.arch-diagram {
-  background: var(--bg-code);
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  padding: 24px 32px;
-  font-family: var(--font-mono);
-  font-size: 0.82rem;
-  line-height: 1.7;
-  overflow-x: auto;
-  margin: 20px 0;
-  white-space: pre;
-}
-.arch-diagram .proc { color: var(--accent); font-weight: 700; }
-.arch-diagram .ns { color: var(--purple); }
-.arch-diagram .port { color: var(--green); }
-.arch-diagram .dim { color: var(--text-dim); }
+/* Details */
+details { background: var(--bg-card); border: 1px solid var(--border); border-radius: 8px; margin: 14px 0; }
+details summary { padding: 14px 18px; cursor: pointer; font-weight: 600; color: var(--text-bright); font-size: 0.95rem; }
+details summary:hover { color: var(--accent); }
+details .content { padding: 0 18px 18px; }
 
 /* Tables */
-table {
-  width: 100%;
-  border-collapse: collapse;
-  margin: 16px 0;
-  font-size: 0.9rem;
-}
-th, td {
-  padding: 10px 14px;
-  border: 1px solid var(--border);
-  text-align: left;
-}
-th {
-  background: var(--bg-card);
-  color: var(--text-bright);
-  font-weight: 600;
-  white-space: nowrap;
-}
-td { vertical-align: top; }
-tr:nth-child(even) { background: rgba(22, 27, 34, 0.5); }
+table { width: 100%; border-collapse: collapse; margin: 16px 0; font-size: 0.88rem; }
+th { background: var(--bg-card); color: var(--text-bright); text-align: left; padding: 10px 14px; border: 1px solid var(--border); font-weight: 600; }
+td { padding: 10px 14px; border: 1px solid var(--border); vertical-align: top; }
+tr:nth-child(even) { background: rgba(22,27,34,0.5); }
 .yes { color: var(--green); font-weight: 600; }
 .no { color: var(--red); }
 .partial { color: var(--yellow); }
 
-/* Feature cards */
-.features {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-  gap: 16px;
-  margin-top: 20px;
-}
-.feature {
-  background: var(--bg-card);
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  padding: 20px;
-}
-.feature .title {
-  color: var(--green);
-  font-weight: 700;
-  font-size: 0.95rem;
-  margin-bottom: 8px;
-}
-.feature p {
-  color: var(--text-dim);
-  font-size: 0.85rem;
-  margin: 0;
-}
+/* Cards */
+.card-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 16px; margin: 16px 0; }
+.card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 8px; padding: 20px; }
+.card h4 { margin-top: 0; color: var(--accent); }
+
+/* Diagram */
+.diagram { background: var(--bg-code); border: 1px solid var(--border); border-radius: 8px; padding: 20px; margin: 16px 0; overflow-x: auto; }
+.diagram svg { display: block; margin: 0 auto; max-width: 100%; }
+
+/* Note */
+.note { background: rgba(88,166,255,0.08); border-left: 3px solid var(--accent); padding: 14px 18px; border-radius: 0 8px 8px 0; margin: 16px 0; font-size: 0.9rem; }
+.warn { background: rgba(210,153,34,0.08); border-left-color: var(--yellow); }
 
 /* Footer */
-footer {
-  padding: 40px 0;
-  text-align: center;
-  color: var(--text-dim);
-  font-size: 0.85rem;
-}
-footer a { color: var(--accent); }
-
-/* Responsive */
+footer { padding: 40px 0; text-align: center; color: var(--text-dim); font-size: 0.85rem; }
 @media (max-width: 640px) {
   .hero h1 { font-size: 2rem; }
+  .toc ol { columns: 1; }
   .stats { gap: 12px; }
-  .stat { min-width: 100px; padding: 12px 16px; }
-  .stat .num { font-size: 1.25rem; }
-  pre { padding: 14px; font-size: 0.78rem; }
-  .arch-diagram { padding: 16px; font-size: 0.72rem; }
+  .stat { min-width: 100px; padding: 10px 14px; }
+  nav .links { gap: 10px; font-size: 0.8rem; }
 }
 </style>
 </head>
 <body>
 
-<!-- Language Toggle -->
-<nav style="position:fixed;top:16px;right:24px;z-index:100;font-size:0.85rem;background:var(--bg-card);border:1px solid var(--border);border-radius:6px;padding:6px 14px;">
-  <strong style="color:var(--text-bright);">English</strong> <span style="color:var(--text-dim);">|</span> <a href="cn.html">中文</a>
+<nav>
+  <div class="brand"><span>sidecar</span></div>
+  <div class="links">
+    <a href="https://github.com/overkazaf/sidecar">GitHub</a>
+    <a href="https://github.com/overkazaf/aria">aria</a>
+    <a href="cn.html">中文</a>
+  </div>
 </nav>
 
-<!-- Hero -->
+<div class="container">
+
+<!-- ═══ HERO ═══ -->
 <div class="hero">
-  <div class="container">
-    <h1><span>sidecar</span></h1>
-    <p class="tagline">
-      A lightweight, rootless chroot launcher for running Apple Music's FairPlay
-      decrypt daemon on Linux &mdash; with full observability, graceful lifecycle
-      management, and zero Docker overhead.
-    </p>
-    <div class="stats">
-      <div class="stat"><div class="num">923</div><div class="label">Lines of C</div></div>
-      <div class="stat"><div class="num">39KB</div><div class="label">Binary</div></div>
-      <div class="stat"><div class="num">0</div><div class="label">Root needed</div></div>
-      <div class="stat"><div class="num">&lt;5s</div><div class="label">Decrypt 50MB</div></div>
-    </div>
+  <h1><span>sidecar</span></h1>
+  <p class="tagline">A lightweight, rootless process isolation launcher for running audio processing pipelines on Linux. Built around user namespace isolation, PTY-based observability, and zero-downtime lifecycle management.</p>
+  <p class="meta">~25 min read · Technical deep dive into audio formats, container structures, and systems architecture</p>
+  <div class="stats">
+    <div class="stat"><div class="num">923</div><div class="label">lines of C</div></div>
+    <div class="stat"><div class="num">39 KB</div><div class="label">binary</div></div>
+    <div class="stat"><div class="num">0</div><div class="label">root needed</div></div>
+    <div class="stat"><div class="num">&lt;15s</div><div class="label">cold start</div></div>
   </div>
 </div>
 
-<!-- Architecture -->
-<section>
-  <div class="container">
-    <h2><span class="icon">&#9881;</span> Architecture</h2>
-    <p>
-      sidecar creates an isolated Linux user namespace, bind-mounts the host
-      kernel interfaces into an Android rootfs, and <code>exec</code>s the
-      FairPlay binary inside the chroot. The child exposes two raw TCP ports
-      for pipelined decrypt and HLS resolution.
-    </p>
-    <div class="arch-diagram"><span class="proc">sidecar</span> <span class="dim">(PID 1, user space)</span>
-  <span class="dim">│</span>
-  <span class="dim">├─</span> <span class="ns">unshare(CLONE_NEWUSER | CLONE_NEWNS)</span>
-  <span class="dim">│   ├─</span> write /proc/self/uid_map  <span class="dim">→ 0 &lt;real_uid&gt; 1</span>
-  <span class="dim">│   └─</span> write /proc/self/gid_map  <span class="dim">→ 0 &lt;real_gid&gt; 1</span>
-  <span class="dim">│</span>
-  <span class="dim">├─</span> bind-mount /dev, /proc, /sys  <span class="dim">→ rootfs/</span>
-  <span class="dim">├─</span> seed /etc/{resolv.conf, hosts}  <span class="dim">→ rootfs/etc/</span>
-  <span class="dim">│</span>
-  <span class="dim">├─</span> <span class="ns">chroot("./rootfs")</span>
-  <span class="dim">│   └─</span> <span class="proc">exec /system/bin/main</span> <span class="dim">(FairPlay daemon)</span>
-  <span class="dim">│       ├─</span> <span class="port">TCP :47010</span> <span class="dim">— decrypt (sample-by-sample stream cipher)</span>
-  <span class="dim">│       └─</span> <span class="port">TCP :47020</span> <span class="dim">— m3u8  (HLS master URL resolution)</span>
-  <span class="dim">│</span>
-  <span class="dim">└─</span> <span class="proc">supervisor loop</span>
-      <span class="dim">├─</span> PTY drain  <span class="dim">(line-buffered child output)</span>
-      <span class="dim">├─</span> port readiness gate  <span class="dim">(--wait-ports)</span>
-      <span class="dim">├─</span> SIGUSR1 → graceful restart  <span class="dim">(re-fork, no PID change)</span>
-      <span class="dim">└─</span> SIGTERM → grace shutdown  <span class="dim">(TERM → wait → KILL)</span></div>
-  </div>
+<!-- ═══ TABLE OF CONTENTS ═══ -->
+<div class="toc">
+  <h3>Table of Contents</h3>
+  <ol>
+    <li><a href="#audio-formats">Audio Format Fundamentals</a></li>
+    <li><a href="#container">MP4/M4A Container Format</a></li>
+    <li><a href="#hls">HLS Streaming Architecture</a></li>
+    <li><a href="#architecture">sidecar Architecture Deep Dive</a></li>
+    <li><a href="#optimization">Optimization Principles</a></li>
+    <li><a href="#comparison">Comparison</a></li>
+    <li><a href="#quickstart">Quick Start</a></li>
+    <li><a href="#cli">CLI Reference</a></li>
+    <li><a href="#benchmarks">Performance Benchmarks</a></li>
+  </ol>
+</div>
+
+<!-- ═══ 1. AUDIO FORMATS ═══ -->
+<section id="audio-formats">
+<h2><span class="icon">🎵</span> Audio Format Fundamentals</h2>
+
+<p>To understand what sidecar does in the audio pipeline, it helps to understand the audio formats it handles. The two primary codecs in the Apple Music ecosystem are ALAC (lossless) and AAC (lossy), each serving different quality tiers.</p>
+
+<h3>ALAC — Apple Lossless Audio Codec</h3>
+
+<p>ALAC is a lossless audio codec, meaning the decompressed audio is bit-for-bit identical to the original studio master. It achieves roughly 40–60% compression compared to raw PCM, using a combination of two techniques:</p>
+
+<details>
+<summary>Predictive Coding + Entropy Coding — How Lossless Compression Works</summary>
+<div class="content">
+<p><strong>Linear Predictive Coding (LPC)</strong> — The encoder analyzes each block of samples and fits a linear predictor that estimates each sample from preceding ones. Instead of storing raw sample values, it stores the <em>prediction residuals</em> (the difference between predicted and actual values). For typical music signals, these residuals are much smaller than the raw samples, requiring fewer bits to represent.</p>
+
+<p><strong>Entropy Coding</strong> — The residuals are then encoded with a modified Rice code (a type of Golomb code). Rice codes are optimal for geometrically-distributed data, which is exactly what prediction residuals tend to follow. Smaller residuals get shorter codewords, larger ones get longer — achieving compression without any information loss.</p>
+
+<p>The encoder adaptively selects the predictor order (0 to 31) and Rice parameter per block to minimize the encoded size. This is why ALAC compression ratio varies with content: a solo piano piece compresses better than dense EDM because its residuals are more predictable.</p>
+
+<pre><code>Raw PCM:      [1024, 1028, 1031, 1035, 1040, 1038, ...]
+Predicted:    [   0, 1024, 1028, 1031, 1035, 1040, ...]
+Residual:     [1024,    4,    3,    4,    5,   -2, ...]   ← much smaller values
+Rice-coded:   [long,  short, short, short, short, short]  ← fewer bits total</code></pre>
+</div>
+</details>
+
+<h4>Bit Depth: 16-bit vs 24-bit</h4>
+
+<p>Bit depth determines the dynamic range — the ratio between the loudest and quietest sound the format can represent:</p>
+
+<table>
+<tr><th>Bit Depth</th><th>Dynamic Range</th><th>Values per Sample</th><th>Use Case</th></tr>
+<tr><td>16-bit</td><td>96 dB</td><td>65,536</td><td>CD quality — sufficient for most listening</td></tr>
+<tr><td>24-bit</td><td>144 dB</td><td>16,777,216</td><td>Hi-Res / studio — exceeds human hearing (120 dB pain threshold)</td></tr>
+</table>
+
+<p>24-bit audio provides 256× more amplitude resolution than 16-bit. In practice, this extra headroom matters most during <em>production</em> (mixing, mastering) where multiple processing stages accumulate quantization error. For playback, the benefit is the lower noise floor — 24-bit's theoretical -144 dBFS noise is well below any listening environment's ambient noise.</p>
+
+<h4>Sample Rate: Nyquist and Human Hearing</h4>
+
+<p>The Nyquist-Shannon theorem states that to faithfully represent a signal, the sample rate must be at least twice the highest frequency present. Human hearing tops out around 20 kHz, so:</p>
+
+<table>
+<tr><th>Sample Rate</th><th>Max Frequency</th><th>Data Rate (24-bit stereo)</th><th>Purpose</th></tr>
+<tr><td>44.1 kHz</td><td>22.05 kHz</td><td>2.12 Mbps</td><td>CD standard — covers full audible range</td></tr>
+<tr><td>48 kHz</td><td>24 kHz</td><td>2.30 Mbps</td><td>Video/broadcast standard — Apple Music Hi-Res default</td></tr>
+<tr><td>96 kHz</td><td>48 kHz</td><td>4.61 Mbps</td><td>Ultra-hi-res — used by some studios</td></tr>
+<tr><td>192 kHz</td><td>96 kHz</td><td>9.22 Mbps</td><td>Archival — frequencies no human can hear</td></tr>
+</table>
+
+<div class="note">
+<strong>Why 24-bit / 48 kHz is the sweet spot:</strong> It captures the full audible frequency range with generous headroom (24 kHz > 20 kHz), provides 144 dB dynamic range, and keeps file sizes reasonable (~48 MB for a typical 4-minute song). Going to 96 or 192 kHz doubles or quadruples the data with no audible benefit for playback.
+</div>
+
+<h4>ALAC vs FLAC vs WAV</h4>
+
+<table>
+<tr><th>Codec</th><th>Type</th><th>Compression</th><th>CPU Decode</th><th>Apple Ecosystem</th><th>Container</th></tr>
+<tr><td>ALAC</td><td>Lossless</td><td>~50%</td><td>Low</td><td class="yes">Native</td><td>MP4/M4A</td></tr>
+<tr><td>FLAC</td><td>Lossless</td><td>~50%</td><td>Low</td><td class="partial">Partial (iOS 11+)</td><td>OGG/native</td></tr>
+<tr><td>WAV</td><td>Uncompressed</td><td>0%</td><td>None</td><td class="yes">Supported</td><td>RIFF</td></tr>
+</table>
+
+<p>ALAC and FLAC achieve nearly identical compression ratios and decode speed. The key difference is ecosystem: ALAC is native to Apple's entire stack (iTunes, CoreAudio, AirPlay, HomePod), while FLAC requires transcoding for some Apple devices. Apple Music exclusively uses ALAC for its lossless tier.</p>
+
+<h3>AAC — Advanced Audio Coding</h3>
+
+<p>AAC is a lossy codec — it achieves much higher compression (roughly 10:1 at 256 kbps) by permanently discarding audio information that the human ear is less likely to perceive. This is fundamentally different from lossless: you cannot recover the original signal from an AAC file.</p>
+
+<details>
+<summary>Psychoacoustic Modeling — How Lossy Compression Decides What to Discard</summary>
+<div class="content">
+<p>AAC's encoder uses a psychoacoustic model based on decades of research into human hearing perception:</p>
+
+<p><strong>Simultaneous masking:</strong> A loud sound at one frequency makes nearby quieter sounds inaudible. If a cymbal crash at 8 kHz is 80 dB, a quiet detail at 7.5 kHz below 60 dB literally cannot be heard — so AAC doesn't waste bits encoding it.</p>
+
+<p><strong>Temporal masking:</strong> A loud transient (like a drum hit) makes sounds immediately before and after it imperceptible. The encoder can reduce precision around transients.</p>
+
+<p><strong>Absolute threshold of hearing:</strong> Humans cannot hear sounds below ~4 dB SPL at 1 kHz, and sensitivity drops dramatically above 16 kHz. AAC allocates fewer bits to these regions.</p>
+
+<p>The encoder divides audio into frequency bands using a Modified Discrete Cosine Transform (MDCT), calculates the masking threshold for each band using the psychoacoustic model, and quantizes each band to just above its masking threshold — using enough bits to stay perceptibly transparent, but no more.</p>
+</div>
+</details>
+
+<h4>AAC Variants</h4>
+
+<table>
+<tr><th>Profile</th><th>Bitrate Range</th><th>Use Case</th></tr>
+<tr><td>AAC-LC (Low Complexity)</td><td>128–320 kbps</td><td>Apple Music standard tier (256 kbps). Best quality-per-bit at higher rates.</td></tr>
+<tr><td>HE-AAC (v1)</td><td>48–96 kbps</td><td>Streaming at low bandwidth. Uses Spectral Band Replication (SBR) to reconstruct high frequencies.</td></tr>
+<tr><td>HE-AAC v2</td><td>24–48 kbps</td><td>Voice/podcast. Adds Parametric Stereo on top of SBR.</td></tr>
+</table>
+
+<p>Apple Music uses AAC-LC at 256 kbps — considered "transparent" for most listeners in blind tests. Apple chose AAC over MP3 because AAC delivers equivalent quality at ~30% lower bitrate (a 256 kbps AAC file sounds comparable to a 320 kbps MP3), and AAC supports features like proper gapless playback that MP3 lacks.</p>
+
 </section>
 
-<!-- Why sidecar -->
-<section>
-  <div class="container">
-    <h2><span class="icon">&#9889;</span> Why sidecar</h2>
-    <p>
-      The community has built impressive tools for Apple Music ALAC decryption.
-      sidecar builds on that foundation while solving real operational pain points:
-    </p>
-    <div class="features">
-      <div class="feature">
-        <div class="title">No Root Required</div>
-        <p>User namespace isolation (<code>unshare</code>) maps your UID to root inside
-        the namespace. No <code>sudo</code>, no capabilities, no Docker daemon.</p>
-      </div>
-      <div class="feature">
-        <div class="title">Full Observability</div>
-        <p>PTY-forwarded child output (line-buffered, not swallowed).
-        <code>--json-events</code> for machine-parseable status.
-        <code>--verbose</code> for human-readable progress.</p>
-      </div>
-      <div class="feature">
-        <div class="title">Port Readiness Gate</div>
-        <p><code>--wait-ports 47010,47020</code> blocks until the decrypt daemon is
-        actually listening. No blind sleep/poll needed.</p>
-      </div>
-      <div class="feature">
-        <div class="title">Graceful Lifecycle</div>
-        <p><code>SIGUSR1</code> re-forks the child without restarting sidecar itself.
-        <code>SIGTERM</code> sends graceful shutdown with configurable timeout.</p>
-      </div>
-      <div class="feature">
-        <div class="title">DNS Bootstrap</div>
-        <p>Automatically seeds <code>resolv.conf</code>, <code>hosts</code>, and
-        <code>nsswitch.conf</code> into the chroot. No silent DNS failures.</p>
-      </div>
-      <div class="feature">
-        <div class="title">Single C File</div>
-        <p>923 lines, zero dependencies beyond libc + libutil.
-        Build with <code>make</code>. Audit the entire codebase in an afternoon.</p>
-      </div>
-    </div>
-  </div>
+<!-- ═══ 2. CONTAINER FORMAT ═══ -->
+<section id="container">
+<h2><span class="icon">📦</span> MP4/M4A Container Format</h2>
+
+<p>Audio codecs produce raw compressed data — but to be useful, that data needs a container format that stores metadata, timing information, and enables seeking. Apple Music uses the <strong>ISO Base Media File Format</strong> (ISO 14496-12), commonly known as MP4. When the container holds only audio, it uses the <code>.m4a</code> extension.</p>
+
+<h3>Box (Atom) Structure</h3>
+
+<p>An MP4 file is a hierarchy of <strong>boxes</strong> (also called atoms in Apple's terminology). Each box has a 4-byte size field, a 4-byte type code, and optional contents. Boxes nest arbitrarily deep:</p>
+
+<div class="diagram">
+<svg viewBox="0 0 700 420" xmlns="http://www.w3.org/2000/svg" style="font-family: monospace; font-size: 13px;">
+  <defs>
+    <style>
+      .box { fill: none; stroke: #30363d; stroke-width: 1.5; rx: 6; }
+      .box-label { fill: #58a6ff; font-weight: bold; font-size: 13px; }
+      .box-desc { fill: #8b949e; font-size: 11px; }
+      .data-fill { fill: rgba(63,185,80,0.1); stroke: #3fb950; }
+      .moov-fill { fill: rgba(88,166,255,0.08); stroke: #58a6ff; }
+      .moof-fill { fill: rgba(188,140,255,0.08); stroke: #bc8cff; }
+    </style>
+  </defs>
+
+  <!-- ftyp -->
+  <rect class="box" x="10" y="10" width="680" height="40"/>
+  <text class="box-label" x="24" y="35">ftyp</text>
+  <text class="box-desc" x="70" y="35">File type: iso5, isom, hlsf — identifies this as a fragmented MP4</text>
+
+  <!-- moov -->
+  <rect class="box moov-fill" x="10" y="60" width="680" height="140"/>
+  <text class="box-label" x="24" y="82">moov</text>
+  <text class="box-desc" x="70" y="82">Movie header — track descriptions, timing, codec config (NO audio data)</text>
+
+  <!-- trak inside moov -->
+  <rect class="box" x="30" y="92" width="640" height="98"/>
+  <text class="box-label" x="44" y="112">trak → mdia → minf → stbl → stsd</text>
+  <text class="box-desc" x="44" y="130">Sample Description Table — codec type, parameters, protection info</text>
+
+  <!-- enca entries -->
+  <rect class="box" x="50" y="140" width="180" height="40" style="stroke: #d29922;"/>
+  <text style="fill: #d29922; font-weight: bold; font-size: 12px;" x="64" y="164">enca (entry 1)</text>
+
+  <rect class="box" x="250" y="140" width="180" height="40" style="stroke: #d29922;"/>
+  <text style="fill: #d29922; font-weight: bold; font-size: 12px;" x="264" y="164">enca (entry 2)</text>
+
+  <text class="box-desc" x="460" y="164">← encrypted audio entries</text>
+
+  <!-- moof 1 -->
+  <rect class="box moof-fill" x="10" y="210" width="680" height="55"/>
+  <text class="box-label" x="24" y="232">moof</text>
+  <text class="box-desc" x="70" y="232">Fragment header — traf/trun: sample sizes, offsets, desc_index</text>
+  <text class="box-desc" x="70" y="248">senc: per-sample IV · saiz: aux sizes · saio: aux offsets</text>
+
+  <!-- mdat 1 -->
+  <rect class="box data-fill" x="10" y="270" width="680" height="36"/>
+  <text class="box-label" x="24" y="293">mdat</text>
+  <text class="box-desc" x="70" y="293">Fragment 1 audio data — encrypted ALAC samples (2–5 MB)</text>
+
+  <!-- moof 2 -->
+  <rect class="box moof-fill" x="10" y="316" width="680" height="36"/>
+  <text class="box-label" x="24" y="339">moof</text>
+  <text class="box-desc" x="70" y="339">Fragment 2 header</text>
+
+  <!-- mdat 2 -->
+  <rect class="box data-fill" x="10" y="357" width="680" height="36"/>
+  <text class="box-label" x="24" y="380">mdat</text>
+  <text class="box-desc" x="70" y="380">Fragment 2 audio data</text>
+
+  <!-- ... -->
+  <text style="fill: #8b949e; font-size: 14px; text-anchor: middle;" x="350" y="413">... repeats for 10–20 fragments per song ...</text>
+</svg>
+</div>
+
+<h4>Regular MP4 vs Fragmented MP4 (fMP4)</h4>
+
+<p>A <strong>regular MP4</strong> has one <code>moov</code> box with a complete sample table (<code>stbl</code>), followed by one large <code>mdat</code> with all audio data. The <code>moov</code> contains every sample's size, offset, and timestamp — enabling instant seeking but requiring the entire file to be written before it's playable.</p>
+
+<p>A <strong>fragmented MP4</strong> uses repeating <code>moof + mdat</code> pairs. Each fragment is independently decodable with its own timing info in <code>trun</code> (Track Fragment Run). This is essential for streaming — the receiver can start playback after receiving just the <code>moov</code> + first fragment, without waiting for the entire file.</p>
+
+<div class="note">
+<strong>The multi-description problem:</strong> In Apple's fragmented MP4 streams, the <code>stsd</code> box often contains <em>multiple</em> sample description entries (both typed <code>enca</code> for encrypted audio). Fragment 1 references description index 1, while fragments 2–16 reference description index 2. Any processing tool that only handles the first entry will produce a file where only the first fragment plays correctly — the rest decode as silence or noise. This is a common pitfall in working with Apple's HLS-delivered audio.
+</div>
+
+<h3>Sample Description Transformation</h3>
+
+<p>When audio is delivered in protected form, the sample description entry is typed <code>enca</code> (encrypted audio) and contains a <code>sinf</code> (protection info) child box. To produce a playable file, two transformations are needed:</p>
+
+<ol>
+  <li><strong>Rename</strong> <code>enca</code> → <code>alac</code> in the stsd entry's 4-byte type field (for each entry)</li>
+  <li><strong>Remove</strong> the <code>sinf</code> child box and adjust parent sizes accordingly</li>
+  <li><strong>Neutralize</strong> fragment-level protection metadata (<code>senc</code>, <code>saiz</code>, <code>saio</code> boxes in every <code>traf</code>) by overwriting their type with <code>free</code></li>
+</ol>
+
+<p>The third step is commonly missed — if <code>senc</code> boxes remain, the demuxer still treats the samples as protected even after the stsd rename, resulting in decode failure for all but the first fragment.</p>
+
 </section>
 
-<!-- Comparison -->
-<section>
-  <div class="container">
-    <h2><span class="icon">&#128200;</span> Comparison</h2>
-    <p>
-      Inspired by and building upon the pioneering work of
-      <a href="https://github.com/zhaarey/wrapper">zhaarey/wrapper</a>,
-      <a href="https://github.com/glomatico/wrapper-v2">glomatico/wrapper-v2</a>, and
-      <a href="https://github.com/WorldObservationLog/wrapper">WorldObservationLog/wrapper</a>.
-    </p>
-    <table>
-      <tr>
-        <th>Feature</th>
-        <th>sidecar</th>
-        <th>wrapper</th>
-        <th>wrapper-v2</th>
-      </tr>
-      <tr>
-        <td>Language</td>
-        <td>C (923 lines, open source)</td>
-        <td>C++ (closed binary)</td>
-        <td>Rust supervisor + C++ worker</td>
-      </tr>
-      <tr>
-        <td>Root required</td>
-        <td class="yes">No (user namespace)</td>
-        <td class="yes">No (user namespace)</td>
-        <td class="partial">Docker required</td>
-      </tr>
-      <tr>
-        <td>PTY output</td>
-        <td class="yes">Yes (line-buffered)</td>
-        <td class="no">No</td>
-        <td class="no">No</td>
-      </tr>
-      <tr>
-        <td>Port readiness</td>
-        <td class="yes">--wait-ports (TCP probe)</td>
-        <td class="no">None (blind start)</td>
-        <td class="yes">Supervisor manages</td>
-      </tr>
-      <tr>
-        <td>Graceful restart</td>
-        <td class="yes">SIGUSR1 in-process</td>
-        <td class="no">Process exits</td>
-        <td class="yes">Supervisor re-spawns</td>
-      </tr>
-      <tr>
-        <td>DNS handling</td>
-        <td class="yes">Auto-seed resolv.conf</td>
-        <td class="no">None</td>
-        <td class="partial">Docker handles</td>
-      </tr>
-      <tr>
-        <td>Structured events</td>
-        <td class="yes">--json-events</td>
-        <td class="no">None</td>
-        <td class="no">None</td>
-      </tr>
-      <tr>
-        <td>Grace shutdown</td>
-        <td class="yes">TERM &rarr; wait &rarr; KILL</td>
-        <td class="no">Immediate exit</td>
-        <td class="yes">Supervisor handles</td>
-      </tr>
-      <tr>
-        <td>Multi-instance</td>
-        <td class="yes">Port offset + aria_sidecar.py</td>
-        <td class="partial">Manual only</td>
-        <td class="no">Single per container</td>
-      </tr>
-      <tr>
-        <td>Docker dependency</td>
-        <td class="yes">None</td>
-        <td class="yes">None</td>
-        <td class="no">Required</td>
-      </tr>
-      <tr>
-        <td>Binary size</td>
-        <td><strong>39 KB</strong></td>
-        <td>20 KB</td>
-        <td>~5 MB (Rust)</td>
-      </tr>
-      <tr>
-        <td>Source available</td>
-        <td class="yes">Yes</td>
-        <td class="no">No</td>
-        <td class="yes">Yes</td>
-      </tr>
-    </table>
-  </div>
+<!-- ═══ 3. HLS ═══ -->
+<section id="hls">
+<h2><span class="icon">📡</span> HLS Streaming Architecture</h2>
+
+<p>Apple Music delivers audio via <strong>HTTP Live Streaming (HLS)</strong> — Apple's adaptive streaming protocol. Understanding HLS is key to understanding how audio reaches sidecar's processing pipeline.</p>
+
+<h3>Three-Level Playlist Hierarchy</h3>
+
+<pre><code><span class="cmt"># Level 1: Master Playlist (from webplayback API)</span>
+#EXT-X-STREAM-INF:AVERAGE-BANDWIDTH=2765403,CODECS="alac",AUDIO="audio-alac-stereo"
+https://aod-ssl.itunes.apple.com/.../P1443135819_default.m3u8
+
+#EXT-X-STREAM-INF:AVERAGE-BANDWIDTH=256000,CODECS="mp4a.40.2",AUDIO="audio-stereo-256"
+https://aod-ssl.itunes.apple.com/.../P1443135819_aac256.m3u8
+
+<span class="cmt"># Level 2: Variant Playlist (selected by client based on codec/quality preference)</span>
+#EXTM3U
+#EXT-X-KEY:METHOD=SAMPLE-AES,URI="skd://itunes.apple.com/p1443135819/c6"
+#EXT-X-MAP:URI="segment_map.mp4"
+#EXTINF:14.933,
+segment1.mp4
+
+<span class="cmt"># Level 3: Segments (actual audio data — fragmented MP4 chunks)</span>
+<span class="cmt"># Downloaded directly as binary, fed into the processing pipeline</span></code></pre>
+
+<h4>Variant Selection Logic</h4>
+
+<p>The pipeline's <code>m3u8_select</code> module picks the best variant by:</p>
+<ol>
+  <li>Filtering for ALAC codec (<code>codecs="alac"</code>) when Hi-Res is requested</li>
+  <li>Among ALAC variants, picking the highest sample rate ≤ the configured maximum (default 192 kHz)</li>
+  <li>Falling back to AAC-LC 256 kbps if ALAC is unavailable or not requested</li>
+</ol>
+
+<p>In practice, Apple Music typically offers one ALAC variant (24-bit/48 kHz) and one AAC variant (256 kbps) per track.</p>
+
 </section>
 
-<!-- Quick Start -->
-<section>
-  <div class="container">
-    <h2><span class="icon">&#128640;</span> Quick Start</h2>
+<!-- ═══ 4. ARCHITECTURE ═══ -->
+<section id="architecture">
+<h2><span class="icon">🏗️</span> sidecar Architecture Deep Dive</h2>
 
-    <h3>Build</h3>
-<pre><code><span class="cmt"># Clone and build</span>
-git clone https://github.com/overkazaf/sidecar.git
-cd sidecar
-make          <span class="cmt"># → ./sidecar (39 KB)</span></code></pre>
+<h3>User Namespace Isolation</h3>
 
-    <h3>Run (code-from-file mode, no login)</h3>
-<pre><code>./sidecar <span class="flag">--userns</span> <span class="flag">--rootfs</span> <span class="val">./rootfs</span> <span class="flag">--bin</span> <span class="val">/system/bin/main</span> \
+<p>The core innovation of sidecar is running a chroot-based process pipeline <strong>without root privileges</strong>, using Linux user namespaces — a kernel feature that creates an isolated view of user/group IDs.</p>
+
+<details>
+<summary>Linux Namespaces Primer</summary>
+<div class="content">
+<p>Linux provides 8 types of namespaces, each isolating a different kernel resource:</p>
+<table>
+<tr><th>Namespace</th><th>Flag</th><th>What it isolates</th></tr>
+<tr><td>User</td><td><code>CLONE_NEWUSER</code></td><td>UIDs/GIDs — you can be "root" (uid 0) inside without real root</td></tr>
+<tr><td>Mount</td><td><code>CLONE_NEWNS</code></td><td>Filesystem mount table — mounts are private to this namespace</td></tr>
+<tr><td>PID</td><td><code>CLONE_NEWPID</code></td><td>Process IDs — child sees itself as PID 1</td></tr>
+<tr><td>Network</td><td><code>CLONE_NEWNET</code></td><td>Network devices, ports, routing tables</td></tr>
+<tr><td>IPC</td><td><code>CLONE_NEWIPC</code></td><td>System V IPC, POSIX message queues</td></tr>
+<tr><td>UTS</td><td><code>CLONE_NEWUTS</code></td><td>Hostname and domain name</td></tr>
+<tr><td>Cgroup</td><td><code>CLONE_NEWCGROUP</code></td><td>Cgroup root directory</td></tr>
+<tr><td>Time</td><td><code>CLONE_NEWTIME</code></td><td>Boot and monotonic clocks</td></tr>
+</table>
+<p>sidecar uses only <strong>User + Mount</strong> — the minimum needed for rootless chroot with bind mounts. This is far lighter than Docker (which uses 5+ namespaces + cgroups + overlay filesystem).</p>
+</div>
+</details>
+
+<h4>Step-by-Step Namespace Setup</h4>
+
+<pre><code><span class="cmt">// 1. Save real UID/GID BEFORE unshare (critical — getuid() returns 65534 after)</span>
+uid_t real_uid = getuid();  <span class="cmt">// e.g., 1000</span>
+gid_t real_gid = getgid();  <span class="cmt">// e.g., 1000</span>
+
+<span class="cmt">// 2. Create new user + mount namespace</span>
+unshare(CLONE_NEWUSER | CLONE_NEWNS);
+
+<span class="cmt">// 3. Map real user to root INSIDE the namespace</span>
+write("/proc/self/setgroups", "deny\n");        <span class="cmt">// required before gid_map</span>
+write("/proc/self/uid_map", "0 1000 1\n");      <span class="cmt">// ns-uid-0 = host-uid-1000</span>
+write("/proc/self/gid_map", "0 1000 1\n");      <span class="cmt">// ns-gid-0 = host-gid-1000</span>
+
+<span class="cmt">// 4. Now we're "root" inside — mount and chroot work</span>
+mount("/dev",  "rootfs/dev",  NULL, MS_BIND|MS_REC, NULL);
+mount("/proc", "rootfs/proc", NULL, MS_BIND|MS_REC, NULL);
+mount("/sys",  "rootfs/sys",  NULL, MS_BIND|MS_REC, NULL);
+
+<span class="cmt">// 5. Enter the rootfs</span>
+chroot("rootfs");
+chdir("/");
+execv("/system/bin/main", child_argv);</code></pre>
+
+<div class="note warn">
+<strong>Common pitfall:</strong> Calling <code>getuid()</code> after <code>unshare(CLONE_NEWUSER)</code> but before writing <code>uid_map</code> returns 65534 (the "nobody" overflow UID). The uid/gid map must use the <em>real</em> UID captured before the unshare call. This bug caused early sidecar versions to fail with "Operation not permitted" when writing uid_map.
+</div>
+
+<h4>Docker vs sidecar Isolation</h4>
+
+<table>
+<tr><th>Aspect</th><th>Docker</th><th>sidecar</th></tr>
+<tr><td>Namespaces used</td><td>User + Mount + PID + Network + IPC + UTS</td><td>User + Mount only</td></tr>
+<tr><td>Filesystem</td><td>OverlayFS + image layers</td><td>Direct bind-mount of rootfs dir</td></tr>
+<tr><td>Network</td><td>Virtual bridge + NAT</td><td>Host network (child ports are directly reachable)</td></tr>
+<tr><td>Startup overhead</td><td>~500ms–2s (image layers, networking)</td><td>~5ms (two syscalls)</td></tr>
+<tr><td>Binary size</td><td>Docker daemon: ~50 MB</td><td>39 KB</td></tr>
+<tr><td>Resource control</td><td>cgroups (memory, CPU limits)</td><td>None (use external cgroup if needed)</td></tr>
+</table>
+
+<h3>Process Lifecycle</h3>
+
+<h4>PTY Allocation: Why openpty() Matters</h4>
+
+<p>When a process's stdout is a pipe (the default for subprocess communication), the C library defaults to <strong>fully buffered</strong> output — writes accumulate in a 4 KB internal buffer and only flush when full or on <code>fflush()</code>. This means a child process's progress messages may not appear for minutes.</p>
+
+<p>sidecar allocates a <strong>pseudo-terminal (PTY)</strong> via <code>openpty()</code>. When stdout is a TTY, libc switches to <strong>line-buffered</strong> mode — each <code>\n</code> triggers a flush. This makes child output visible in real time, critical for observability during login and initialization.</p>
+
+<h4>Signal Forwarding Chain</h4>
+
+<pre><code>Operator sends SIGTERM
+    │
+    ▼
+sidecar (parent) catches signal
+    │
+    ├── Forward SIGTERM to child process group
+    │
+    ├── Start grace timer (--grace-secs, default 10s)
+    │
+    ├── Continue draining PTY output
+    │
+    ├── [child exits within grace period?]
+    │   ├── YES → collect exit status, exit with same code
+    │   └── NO  → send SIGKILL, collect, exit
+    │
+SIGUSR1 (graceful restart):
+    │
+    ├── Same TERM → grace → KILL sequence
+    │
+    └── After child exits → re-fork with same argv
+        (sidecar PID stays the same — no service interruption)</code></pre>
+
+<h3>Port Readiness Detection</h3>
+
+<p>After the child starts inside the chroot, it takes several seconds to initialize (loading libraries, establishing auth state). sidecar needs to know when the service is actually ready to accept connections.</p>
+
+<p>The approach: <strong>non-blocking TCP connect probes</strong> on a 200ms tick, interleaved with PTY drain. The interleaving is critical — the child process writes >4 KB of output during startup (library loading messages). If sidecar blocked on TCP probes without draining the PTY, the PTY buffer would fill, the child's write() would block, and startup would deadlock.</p>
+
+<pre><code><span class="kw">while</span> (!all_ports_ready && !timed_out) {
+    <span class="cmt">// 1. Drain any pending PTY output (non-blocking read)</span>
+    drain_pty(master_fd);
+
+    <span class="cmt">// 2. Probe each port with non-blocking connect</span>
+    <span class="kw">for</span> (port : wait_ports) {
+        fd = socket(AF_INET, SOCK_STREAM | SOCK_NONBLOCK, 0);
+        connect(fd, port);  <span class="cmt">// returns immediately (EINPROGRESS)</span>
+        poll(fd, POLLOUT, 50ms);  <span class="cmt">// short timeout</span>
+        <span class="kw">if</span> (connected) mark_ready(port);
+        close(fd);
+    }
+
+    usleep(200_000);  <span class="cmt">// 200ms tick</span>
+}</code></pre>
+
+</section>
+
+<!-- ═══ 5. OPTIMIZATION ═══ -->
+<section id="optimization">
+<h2><span class="icon">⚡</span> Optimization Principles</h2>
+
+<h3>M4A Writer: In-Place Patching Strategy</h3>
+
+<p>After samples are processed, they need to be written back into a valid ALAC M4A file. The naive approach would be to construct a new file from scratch — but this requires understanding every box type in the original container, which is fragile and lossy.</p>
+
+<p>Instead, sidecar's pipeline uses <strong>in-place byte patching</strong>: the original fragmented MP4 is modified in memory, with processed samples overwriting their original counterparts at the exact same byte offsets. Since processing preserves sample sizes (sample_in.length == sample_out.length), no box sizes need to change for the mdat regions.</p>
+
+<p>The structural changes needed are minimal:</p>
+
+<div class="card-grid">
+<div class="card">
+  <h4>1. stsd Entry Rename</h4>
+  <p>Overwrite the 4-byte type field of <strong>every</strong> <code>enca</code> entry with <code>alac</code>. Remove the <code>sinf</code> child box and adjust all ancestor box sizes. Must handle multiple entries (the common failure mode is patching only the first).</p>
+</div>
+<div class="card">
+  <h4>2. sinf Removal</h4>
+  <p>The <code>sinf</code> box inside each <code>enca</code> entry describes the protection scheme. Removing it requires shrinking the entry and every parent box (<code>stsd</code> → <code>stbl</code> → <code>minf</code> → <code>mdia</code> → <code>trak</code> → <code>moov</code>) by the sinf's size.</p>
+</div>
+<div class="card">
+  <h4>3. Fragment Metadata Neutralization</h4>
+  <p>Each <code>traf</code> contains <code>senc</code> (IVs), <code>saiz</code> (aux sizes), <code>saio</code> (aux offsets). These are overwritten with <code>free</code> boxes — same size, preserving all byte offsets, but invisible to demuxers.</p>
+</div>
+</div>
+
+<div class="note warn">
+<strong>Why not just remux with ffmpeg?</strong> Running <code>ffmpeg -c copy -movflags +faststart</code> on a fragmented ALAC file often produces a truncated result. ffmpeg's copy-mode remuxer reads duration from the moov header, which in fragmented MP4 only describes the first segment (~15s). The remaining fragments' moof/mdat pairs are silently dropped. In-place patching preserves all fragments.
+</div>
+
+<h3>Pipeline Concurrency</h3>
+
+<p>A single processing instance on TCP 47010 handles one connection at a time (fork-per-connection, serial within each fork). For album downloads (10–20 tracks), this is the throughput bottleneck.</p>
+
+<h4>Multi-Instance Architecture</h4>
+
+<pre><code>aria server (Flask, threaded)
+    │
+    ├── DecryptPool (round-robin, per-instance mutex)
+    │   ├── sidecar :47010 / :47020  (instance 0)
+    │   ├── sidecar :47011 / :47021  (instance 1)
+    │   ├── sidecar :47012 / :47022  (instance 2)
+    │   └── sidecar :47013 / :47023  (instance 3)
+    │
+    └── Per request: pick least-busy → lock → process → unlock</code></pre>
+
+<p>Each sidecar instance is an independent process with its own TCP ports. The <code>DecryptPool</code> dispatches tracks using round-robin selection with per-instance <strong>mutex locks</strong> — ensuring only one track uses each instance at a time.</p>
+
+<details>
+<summary>Why persistent connections fail — and the per-track connection solution</summary>
+<div class="content">
+<p>Initially, the pipeline reused TCP connections across tracks (a <code>PersistentDecryptSession</code>). This failed because the processing service maintains internal session state per-connection — when a second track's key context arrived on the same connection, the state machine could enter an invalid state, causing the service to crash or hang.</p>
+
+<p>The fix is straightforward: <strong>open a new TCP connection for each track</strong>. The connection setup overhead (~1ms on loopback) is negligible compared to the processing time per track (~4s for a typical 48MB ALAC file). This trades a tiny latency increase for complete stability — the pipeline now processes 19-track albums with zero failures.</p>
+</div>
+</details>
+
+<h3>Memory & I/O Optimization</h3>
+
+<h4>Pipelined Processing Protocol</h4>
+
+<p>The TCP protocol uses a <strong>pipelined writer/reader design</strong> with a semaphore gate to balance throughput and memory:</p>
+
+<pre><code>Writer thread                          Processing service
+    │                                       │
+    ├── send(key_context_header) ──────────►│
+    ├── send(sample_1_len + data) ─────────►│ process sample 1
+    ├── send(sample_2_len + data) ─────────►│ process sample 2
+    │   ... (up to 64 in-flight)            │
+    │                                       │
+Reader thread                               │
+    ├── recv(processed_sample_1) ◄──────────│
+    │   gate.release()  ← allows writer     │
+    ├── recv(processed_sample_2) ◄──────────│
+    │   gate.release()                      │
+    │   ...                                 │</code></pre>
+
+<p>The semaphore gate (capacity 64) ensures at most 64 samples are in-flight — preventing unbounded memory growth while keeping the TCP pipe full. With 256KB socket buffers and ~18KB average sample size, this achieves ~12 MB/s throughput on loopback.</p>
+
+</section>
+
+<!-- ═══ 6. COMPARISON ═══ -->
+<section id="comparison">
+<h2><span class="icon">📊</span> Comparison</h2>
+
+<table>
+<tr><th>Capability</th><th>wrapper</th><th>wrapper-v2</th><th>sidecar</th></tr>
+<tr><td>Language</td><td>C++ (closed binary)</td><td>Rust supervisor + C++ worker</td><td class="yes">C (923 lines, open source)</td></tr>
+<tr><td>Root required</td><td>No (user namespace)</td><td>Docker (effectively root)</td><td class="yes">No (user namespace)</td></tr>
+<tr><td>Docker required</td><td class="yes">No</td><td class="no">Yes</td><td class="yes">No</td></tr>
+<tr><td>Output visibility</td><td class="no">Fully buffered</td><td class="partial">Docker logs</td><td class="yes">PTY line-buffered</td></tr>
+<tr><td>Port readiness</td><td class="no">None</td><td class="yes">Rust supervisor</td><td class="yes">--wait-ports</td></tr>
+<tr><td>Graceful restart</td><td class="no">Not supported</td><td class="yes">Supervisor respawn</td><td class="yes">SIGUSR1 in-process</td></tr>
+<tr><td>DNS in chroot</td><td class="no">Not handled</td><td class="yes">Docker handles</td><td class="yes">Auto-seed</td></tr>
+<tr><td>Structured events</td><td class="no">None</td><td class="no">None</td><td class="yes">--json-events</td></tr>
+<tr><td>Binary size</td><td>20 KB</td><td>~5 MB (Rust)</td><td>39 KB</td></tr>
+<tr><td>Multi-generation restart</td><td class="no">Process dies</td><td class="yes">Supervisor loop</td><td class="yes">Same PID, re-fork</td></tr>
+<tr><td>Build toolchain</td><td>N/A (binary)</td><td>Rust + Cargo + Docker</td><td class="yes">cc (any C compiler)</td></tr>
+</table>
+
+</section>
+
+<!-- ═══ 7. QUICK START ═══ -->
+<section id="quickstart">
+<h2><span class="icon">🚀</span> Quick Start</h2>
+
+<pre><code><span class="cmt"># Build</span>
+<span class="kw">make</span>
+<span class="cmt"># or: cc -O2 -Wall -Wextra -o sidecar sidecar.c -lutil</span>
+
+<span class="cmt"># Verify user namespace support</span>
+cat /proc/sys/kernel/unprivileged_userns_clone   <span class="cmt"># should be 1</span>
+
+<span class="cmt"># Run (no root needed)</span>
+./sidecar <span class="flag">--rootfs</span> <span class="val">./rootfs</span> <span class="flag">--bin</span> <span class="val">/system/bin/main</span> \
   <span class="flag">--wait-ports</span> <span class="val">47010,47020</span> <span class="flag">--verbose</span> \
-  <span class="flag">--</span> -M <span class="val">47020</span> -D <span class="val">47010</span> -F</code></pre>
+  <span class="flag">--</span> -M 47020 -D 47010 -F
 
-    <h3>Run (login mode, first-time auth)</h3>
-<pre><code>./sidecar <span class="flag">--userns</span> <span class="flag">--rootfs</span> <span class="val">./rootfs</span> <span class="flag">--bin</span> <span class="val">/system/bin/main</span> \
-  <span class="flag">--wait-ports</span> <span class="val">47010,47020</span> <span class="flag">--verbose</span> \
-  <span class="flag">--</span> -M <span class="val">47020</span> -D <span class="val">47010</span> --login=<span class="val">user@host:pass</span></code></pre>
-
-    <h3>Multi-instance (4 parallel decrypt workers)</h3>
-<pre><code><span class="kw">for</span> i <span class="kw">in</span> 0 1 2 3; <span class="kw">do</span>
-  ./sidecar <span class="flag">--userns</span> <span class="flag">--rootfs</span> <span class="val">./rootfs</span> <span class="flag">--bin</span> <span class="val">/system/bin/main</span> \
+<span class="cmt"># Multi-instance (4 parallel)</span>
+<span class="kw">for</span> i <span class="kw">in</span> 0 1 2 3; <span class="kw">do</span>
+  ./sidecar <span class="flag">--rootfs</span> <span class="val">./rootfs</span> <span class="flag">--bin</span> <span class="val">/system/bin/main</span> \
     <span class="flag">--wait-ports</span> <span class="val">$((47010+i)),$((47020+i))</span> \
-    <span class="flag">--</span> -M <span class="val">$((47020+i))</span> -D <span class="val">$((47010+i))</span> -F &amp;
-<span class="kw">done</span></code></pre>
+    <span class="flag">--</span> -M $((47020+i)) -D $((47010+i)) -F &amp;
+<span class="kw">done</span>
 
-    <h3>Graceful restart (re-login without restarting sidecar)</h3>
-<pre><code>kill -USR1 <span class="val">$(pgrep -f sidecar)</span></code></pre>
-  </div>
+<span class="cmt"># Graceful restart (refresh auth without process exit)</span>
+kill -USR1 $(pgrep -f sidecar)</code></pre>
 </section>
 
-<!-- CLI Reference -->
-<section>
-  <div class="container">
-    <h2><span class="icon">&#128736;</span> CLI Reference</h2>
-    <table>
-      <tr><th>Flag</th><th>Default</th><th>Description</th></tr>
-      <tr><td><code>--rootfs PATH</code></td><td><code>./rootfs</code></td><td>Android rootfs directory</td></tr>
-      <tr><td><code>--bin PATH</code></td><td><code>/system/bin/main</code></td><td>Binary to exec inside chroot</td></tr>
-      <tr><td><code>--userns</code></td><td>on</td><td>Use user namespace (no root). <code>--no-userns</code> for real root chroot</td></tr>
-      <tr><td><code>--wait-ports P,P</code></td><td>&mdash;</td><td>Block until these TCP ports respond</td></tr>
-      <tr><td><code>--wait-timeout N</code></td><td>120</td><td>Seconds to wait for ports before giving up</td></tr>
-      <tr><td><code>--grace-secs N</code></td><td>10</td><td>Seconds between SIGTERM and SIGKILL on shutdown</td></tr>
-      <tr><td><code>--verbose</code></td><td>off</td><td>Print setup steps to stderr</td></tr>
-      <tr><td><code>--json-events</code></td><td>off</td><td>Machine-readable JSON status on stderr</td></tr>
-      <tr><td><code>--pid-file PATH</code></td><td>&mdash;</td><td>Write child PID for systemd/k8s probes</td></tr>
-      <tr><td><code>--ready-fd N</code></td><td>&mdash;</td><td>Write <code>\1\n</code> to fd N when ports ready</td></tr>
-      <tr><td><code>--cwd-in-chroot</code></td><td><code>/</code></td><td>Working directory after chroot</td></tr>
-      <tr><td><code>--</code></td><td>&mdash;</td><td>Everything after this is passed to the child process</td></tr>
-    </table>
-  </div>
+<!-- ═══ 8. CLI ═══ -->
+<section id="cli">
+<h2><span class="icon">⌨️</span> CLI Reference</h2>
+
+<table>
+<tr><th>Flag</th><th>Default</th><th>Description</th></tr>
+<tr><td><code>--rootfs PATH</code></td><td><code>./rootfs</code></td><td>Path to the rootfs directory</td></tr>
+<tr><td><code>--bin PATH</code></td><td><code>/system/bin/main</code></td><td>Executable to run inside chroot</td></tr>
+<tr><td><code>--userns</code></td><td>on</td><td>Use user namespace isolation (no root needed)</td></tr>
+<tr><td><code>--no-userns</code></td><td></td><td>Use real chroot (needs root, legacy mode)</td></tr>
+<tr><td><code>--wait-ports P[,P..]</code></td><td></td><td>TCP ports to probe for readiness</td></tr>
+<tr><td><code>--wait-timeout N</code></td><td><code>120</code></td><td>Seconds to wait for ports</td></tr>
+<tr><td><code>--grace-secs N</code></td><td><code>10</code></td><td>SIGTERM → SIGKILL grace period</td></tr>
+<tr><td><code>--ready-fd N</code></td><td></td><td>Write <code>\1\n</code> when ports ready (systemd notify)</td></tr>
+<tr><td><code>--pid-file PATH</code></td><td></td><td>Write child PID for health probes</td></tr>
+<tr><td><code>--json-events</code></td><td></td><td>Structured JSON events on stderr</td></tr>
+<tr><td><code>--verbose</code>, <code>-v</code></td><td></td><td>Log setup steps to stderr</td></tr>
+<tr><td><code>--no-pty</code></td><td></td><td>Skip PTY allocation</td></tr>
+<tr><td><code>--no-dns-seed</code></td><td></td><td>Skip DNS file seeding into chroot</td></tr>
+</table>
+
+<p>Everything after <code>--</code> is passed to the child binary verbatim.</p>
 </section>
 
-<!-- Wire Protocol -->
-<section>
-  <div class="container">
-    <h2><span class="icon">&#128268;</span> Wire Protocol</h2>
-    <p>
-      The FairPlay binary exposes two raw TCP ports. Both are locally-unauthenticated
-      with simple length-prefixed binary framing.
-    </p>
+<!-- ═══ 9. BENCHMARKS ═══ -->
+<section id="benchmarks">
+<h2><span class="icon">📈</span> Performance Benchmarks</h2>
 
-    <h3>Port 47020 &mdash; m3u8 (get-stream)</h3>
-    <p>Resolves an Apple Music <code>adamId</code> to an enhanced-HLS master playlist URL.</p>
-<pre><code><span class="cmt">client → server:</span>  <span class="val">0a</span> <span class="str">31 34 34 30 38 34 31 32 36 33</span>
-                  <span class="dim">└─┘ └────── '1440841263' ──────┘</span>
-                  <span class="dim">len</span>
+<p style="color: var(--text-dim); font-style: italic;">Benchmarks are being collected on an 80-core server. Results will be published here with startup time, throughput, memory usage, and multi-track stability comparisons against wrapper.</p>
 
-<span class="cmt">server → client:</span>  <span class="str">"https://aod-ssl.itunes.apple.com/...master.m3u8\n"</span></code></pre>
-
-    <h3>Port 47010 &mdash; decrypt (sample-by-sample)</h3>
-    <p>Full-duplex pipelined stream cipher. Supports multiple key contexts per connection.</p>
-<pre><code><span class="cmt"># Key context header (once per key):</span>
-<span class="val">len(adamId)</span> <span class="str">adamId</span> <span class="val">len(keyUri)</span> <span class="str">keyUri</span>
-
-<span class="cmt"># Per-sample (repeated):</span>
-<span class="val">LE-uint32 sample_len</span> <span class="str">ciphertext[sample_len]</span>  <span class="dim">→</span>  <span class="str">plaintext[sample_len]</span>
-
-<span class="cmt"># End context:</span>
-<span class="val">00 00 00 00</span></code></pre>
-  </div>
+<p style="color: var(--text-dim);">Check back soon or watch the <a href="https://github.com/overkazaf/sidecar">repository</a> for updates.</p>
 </section>
 
-<!-- Integration -->
-<section>
-  <div class="container">
-    <h2><span class="icon">&#128279;</span> Integration with aria</h2>
-    <p>
-      <a href="https://github.com/overkazaf/aria">aria</a> is the HTTP API service
-      that orchestrates the full ALAC pipeline: Apple catalog lookup &rarr; HLS download
-      &rarr; FairPlay decrypt via sidecar &rarr; m4a output.
-    </p>
-<pre><code><span class="cmt"># aria_sidecar.py manages N sidecar instances</span>
-python3 aria_sidecar.py -F --instances <span class="val">4</span>
+</div><!-- container -->
 
-<span class="cmt"># aria server round-robins decrypt requests across instances</span>
-ARIA_INSTANCES=<span class="val">4</span> python3 server.py --port <span class="val">8899</span>
-
-<span class="cmt"># Download Hi-Res ALAC</span>
-curl -H <span class="str">"Authorization: Bearer $TOKEN"</span> \
-  <span class="str">"http://localhost:8899/download/1440841263?fmt=alac"</span> \
-  -o song.m4a</code></pre>
-
-    <p>
-      The <code>DecryptPool</code> in aria's <code>decryptor.py</code> maintains
-      one TCP session per sidecar instance with per-instance mutex locks,
-      ensuring each decrypt daemon handles one track at a time.
-    </p>
-  </div>
-</section>
-
-<!-- Footer -->
 <footer>
-  <div class="container">
-    <p>
-      <strong>sidecar</strong> &mdash; MIT License &mdash;
-      <a href="https://github.com/overkazaf/sidecar">GitHub</a>
-    </p>
-    <p style="margin-top: 8px;">
-      Inspired by
-      <a href="https://github.com/zhaarey/wrapper">zhaarey/wrapper</a>,
-      <a href="https://github.com/glomatico/wrapper-v2">glomatico/wrapper-v2</a>, and
-      <a href="https://github.com/WorldObservationLog/wrapper">WorldObservationLog/wrapper</a>.
-    </p>
-  </div>
+  <p>sidecar is open source under the MIT License.</p>
+  <p>Inspired by <a href="https://github.com/zhaarey/wrapper">zhaarey/wrapper</a> · Built for the <a href="https://github.com/overkazaf/aria">aria</a> pipeline</p>
 </footer>
 
 </body>
