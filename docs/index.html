@@ -176,7 +176,7 @@ footer { padding: 40px 0; text-align: center; color: var(--text-dim); font-size:
 
 <!-- Floating Language Switcher -->
 <div class="lang-switch">
-  <span class="lang-icon">🌐</span>
+  <span class="lang-icon"></span>
   <span class="active">EN</span>
   <a href="cn.html">中文</a>
 </div>
@@ -214,7 +214,7 @@ footer { padding: 40px 0; text-align: center; color: var(--text-dim); font-size:
 
 <!-- ═══ 1. AUDIO FORMATS ═══ -->
 <section id="audio-formats">
-<h2><span class="icon">🎵</span> Audio Format Fundamentals</h2>
+<h2><span class="icon"></span> Audio Format Fundamentals</h2>
 
 <p>To understand what sidecar does in the audio pipeline, it helps to understand the audio formats it handles. The two primary codecs in the Apple Music ecosystem are ALAC (lossless) and AAC (lossy), each serving different quality tiers.</p>
 
@@ -311,7 +311,7 @@ Rice-coded:   [long,  short, short, short, short, short]  ← fewer bits total</
 
 <!-- ═══ 2. CONTAINER FORMAT ═══ -->
 <section id="container">
-<h2><span class="icon">📦</span> MP4/M4A Container Format</h2>
+<h2><span class="icon"></span> MP4/M4A Container Format</h2>
 
 <p>Audio codecs produce raw compressed data — but to be useful, that data needs a container format that stores metadata, timing information, and enables seeking. Apple Music uses the <strong>ISO Base Media File Format</strong> (ISO 14496-12), commonly known as MP4. When the container holds only audio, it uses the <code>.m4a</code> extension.</p>
 
@@ -408,7 +408,7 @@ Rice-coded:   [long,  short, short, short, short, short]  ← fewer bits total</
 
 <!-- ═══ 3. HLS ═══ -->
 <section id="hls">
-<h2><span class="icon">📡</span> HLS Streaming Architecture</h2>
+<h2><span class="icon"></span> HLS Streaming Architecture</h2>
 
 <p>Apple Music delivers audio via <strong>HTTP Live Streaming (HLS)</strong> — Apple's adaptive streaming protocol. Understanding HLS is key to understanding how audio reaches sidecar's processing pipeline.</p>
 
@@ -446,7 +446,7 @@ segment1.mp4
 
 <!-- ═══ 4. ARCHITECTURE ═══ -->
 <section id="architecture">
-<h2><span class="icon">🏗️</span> sidecar Architecture Deep Dive</h2>
+<h2><span class="icon">️</span> sidecar Architecture Deep Dive</h2>
 
 <h3>User Namespace Isolation</h3>
 
@@ -651,7 +651,7 @@ Reader thread                               │
 
 <!-- ═══ 6. COMPARISON ═══ -->
 <section id="comparison">
-<h2><span class="icon">📊</span> Comparison</h2>
+<h2><span class="icon"></span> Comparison</h2>
 
 <table>
 <tr><th>Capability</th><th>wrapper</th><th>wrapper-v2</th><th>sidecar</th></tr>
@@ -672,7 +672,7 @@ Reader thread                               │
 
 <!-- ═══ 7. QUICK START ═══ -->
 <section id="quickstart">
-<h2><span class="icon">🚀</span> Quick Start</h2>
+<h2><span class="icon"></span> Quick Start</h2>
 
 <pre><code><span class="cmt"># Build</span>
 <span class="kw">make</span>
@@ -723,7 +723,7 @@ kill -USR1 $(pgrep -f sidecar)</code></pre>
 
 <!-- ═══ 9. BENCHMARKS ═══ -->
 <section id="benchmarks">
-<h2><span class="icon">📈</span> Performance Benchmarks</h2>
+<h2><span class="icon"></span> Performance Benchmarks</h2>
 
 <p style="color: var(--text-dim); font-style: italic;">Benchmarks are being collected on an 80-core server. Results will be published here with startup time, throughput, memory usage, and multi-track stability comparisons against wrapper.</p>
 

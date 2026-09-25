@@ -129,7 +129,7 @@ footer a { color: var(--accent); }
 
 <!-- Floating Language Switcher -->
 <div class="lang-switch">
-  <span class="lang-icon">🌐</span>
+  <span class="lang-icon"></span>
   <a href="index.html">EN</a>
   <span class="active">中文</span>
 </div>
@@ -154,7 +154,7 @@ footer a { color: var(--accent); }
 <!-- 架构 -->
 <section>
   <div class="container">
-    <h2><span class="icon">&#9881;</span> 架构</h2>
+    <h2>架构</h2>
     <p>
       sidecar 创建一个隔离的 Linux 用户命名空间，将宿主机内核接口 bind-mount 到 Android rootfs 中，
       然后在 chroot 内 <code>exec</code> FairPlay 解密二进制。子进程通过两个原始 TCP 端口提供
@@ -185,7 +185,7 @@ footer a { color: var(--accent); }
 <!-- 为什么选择 sidecar -->
 <section>
   <div class="container">
-    <h2><span class="icon">&#9889;</span> 为什么选择 sidecar</h2>
+    <h2>为什么选择 sidecar</h2>
     <p>
       社区已经构建了出色的 Apple Music ALAC 解密工具。sidecar 在此基础上，
       专注解决实际生产部署中遇到的痛点：
@@ -228,7 +228,7 @@ footer a { color: var(--accent); }
 <!-- 对比 -->
 <section>
   <div class="container">
-    <h2><span class="icon">&#128200;</span> 对比</h2>
+    <h2>对比</h2>
     <p>
       致敬并受启发于
       <a href="https://github.com/zhaarey/wrapper">zhaarey/wrapper</a>、
@@ -322,7 +322,7 @@ footer a { color: var(--accent); }
 <!-- 性能评测 -->
 <section>
   <div class="container">
-    <h2><span class="icon">&#128202;</span> 性能评测</h2>
+    <h2>性能评测</h2>
     <p style="color: var(--yellow); font-style: italic;">评测数据准备中，即将更新...</p>
     <p>我们正在对 sidecar 与 wrapper 进行全面的性能对比评测，涵盖启动时间、解密吞吐量、内存占用和多 track 稳定性等维度。</p>
   </div>
@@ -331,7 +331,7 @@ footer a { color: var(--accent); }
 <!-- 快速开始 -->
 <section>
   <div class="container">
-    <h2><span class="icon">&#128640;</span> 快速开始</h2>
+    <h2>快速开始</h2>
 
     <h3>编译</h3>
 <pre><code><span class="cmt"># 克隆并编译</span>
@@ -364,7 +364,7 @@ make          <span class="cmt"># → ./sidecar (39 KB)</span></code></pre>
 <!-- CLI 参考 -->
 <section>
   <div class="container">
-    <h2><span class="icon">&#128736;</span> 命令行参数</h2>
+    <h2>命令行参数</h2>
     <table>
       <tr><th>参数</th><th>默认值</th><th>说明</th></tr>
       <tr><td><code>--rootfs PATH</code></td><td><code>./rootfs</code></td><td>Android rootfs 目录</td></tr>
@@ -385,7 +385,7 @@ make          <span class="cmt"># → ./sidecar (39 KB)</span></code></pre>
 <!-- 通信协议 -->
 <section>
   <div class="container">
-    <h2><span class="icon">&#128268;</span> 通信协议</h2>
+    <h2>通信协议</h2>
     <p>
       FairPlay 解密二进制暴露两个原始 TCP 端口。均为本地无认证、长度前缀的二进制帧格式。
     </p>
@@ -414,7 +414,7 @@ make          <span class="cmt"># → ./sidecar (39 KB)</span></code></pre>
 <!-- 与 aria 集成 -->
 <section>
   <div class="container">
-    <h2><span class="icon">&#128279;</span> 与 aria 集成</h2>
+    <h2>与 aria 集成</h2>
     <p>
       <a href="https://github.com/overkazaf/aria">aria</a> 是编排完整 ALAC 流水线的 HTTP API 服务：
       Apple 目录查询 → HLS 下载 → 通过 sidecar 进行 FairPlay 解密 → m4a 输出。
