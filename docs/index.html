@@ -39,7 +39,7 @@ a:hover { text-decoration: underline; }
 .page { max-width: 820px; margin: 0 auto; padding: 0 24px 80px; }
 
 /* Language switcher */
-.lang-switch { position: fixed; top: 16px; right: 16px; z-index: 1000; display: flex; align-items: center; gap: 2px; background: var(--bg-card); border: 1px solid var(--border); border-radius: 20px; padding: 4px; font-size: 13px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
+.top-nav { display: flex; justify-content: space-between; align-items: center; padding: 10px 24px; border-bottom: 1px solid var(--border); position: sticky; top: 0; background: rgba(255,255,255,0.95); backdrop-filter: blur(8px); z-index: 100; font-size: 13px; } .top-nav a { color: var(--text-secondary); text-decoration: none; } .top-nav a:hover { color: var(--accent); } .lang-toggle { display: flex; gap: 2px; background: var(--bg-code); border-radius: 16px; padding: 3px; } .lang-toggle a, .lang-toggle span { padding: 4px 12px; border-radius: 12px; text-decoration: none; color: var(--text-secondary); } .lang-toggle .active { background: var(--accent); color: #fff; }
 .lang-switch a, .lang-switch span:not(.lang-icon) { padding: 6px 14px; border-radius: 16px; text-decoration: none; color: var(--text-dim); transition: all 0.2s; }
 .lang-switch .active { background: var(--accent); color: #fff; }
 .lang-switch a:hover { color: var(--text); text-decoration: none; }
@@ -118,11 +118,9 @@ details .content { padding: 0 16px 14px; }
 </style>
 </head>
 <body>
+<nav class="top-nav"><a href="https://github.com/overkazaf/sidecar">overkazaf/sidecar</a><div class="lang-toggle"><span class="active">EN</span><a href="cn.html">CN</a></div></nav>
 
-<div class="lang-switch">
-  <span class="active">EN</span>
-  <a href="cn.html">中文</a>
-</div>
+
 
 <div class="page">
 
