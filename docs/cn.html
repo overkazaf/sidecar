@@ -85,14 +85,53 @@ footer a { color: var(--accent); }
   pre { padding: 14px; font-size: 0.78rem; }
   .arch-diagram { padding: 16px; font-size: 0.72rem; }
 }
+
+/* Floating Language Switcher */
+.lang-switch {
+  position: fixed;
+  top: 16px;
+  right: 16px;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  background: rgba(30, 35, 45, 0.95);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(100, 120, 150, 0.3);
+  border-radius: 20px;
+  padding: 4px;
+  font-size: 13px;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.3);
+}
+.lang-switch .lang-icon {
+  padding: 4px 6px;
+  font-size: 14px;
+}
+.lang-switch a, .lang-switch span:not(.lang-icon) {
+  padding: 6px 14px;
+  border-radius: 16px;
+  text-decoration: none;
+  color: #8b949e;
+  transition: all 0.2s;
+}
+.lang-switch .active {
+  background: #238636;
+  color: #fff;
+}
+.lang-switch a:hover {
+  color: #fff;
+  text-decoration: none;
+}
 </style>
 </head>
 <body>
 
-<!-- 语言切换 -->
-<nav style="position:fixed;top:16px;right:24px;z-index:100;font-size:0.85rem;background:var(--bg-card);border:1px solid var(--border);border-radius:6px;padding:6px 14px;">
-  <a href="index.html">English</a> <span style="color:var(--text-dim);">|</span> <strong style="color:var(--text-bright);">中文</strong>
-</nav>
+<!-- Floating Language Switcher -->
+<div class="lang-switch">
+  <span class="lang-icon">🌐</span>
+  <a href="index.html">EN</a>
+  <span class="active">中文</span>
+</div>
 
 <!-- Hero -->
 <div class="hero">
