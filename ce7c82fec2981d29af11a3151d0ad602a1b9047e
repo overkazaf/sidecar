@@ -1,0 +1,29 @@
+docs/BENCHMARK.md
+  7fca30ff5809315c 1-83
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.2.8-ntes.9",
+  "base_commit_sha": "ce7c82fec2981d29af11a3151d0ad602a1b9047e",
+  "prompts": {
+    "7fca30ff5809315c": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "e3fd8795-f7b7-4095-8a46-6709ec55ba53",
+        "model": "claude-opus-4-6"
+      },
+      "human_author": "overkazaf",
+      "messages": [],
+      "total_additions": 83,
+      "total_deletions": 0,
+      "accepted_lines": 83,
+      "overriden_lines": 0,
+      "per_file_stats": {
+        "docs/BENCHMARK.md": {
+          "additions": 83,
+          "accepted_lines": 83
+        }
+      }
+    }
+  }
+}
