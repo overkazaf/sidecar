@@ -1,0 +1,541 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>sidecar — FairPlay Decrypt Sidecar</title>
+<style>
+:root {
+  --bg: #0d1117;
+  --bg-card: #161b22;
+  --bg-code: #1c2128;
+  --border: #30363d;
+  --text: #c9d1d9;
+  --text-dim: #8b949e;
+  --text-bright: #f0f6fc;
+  --accent: #58a6ff;
+  --green: #3fb950;
+  --yellow: #d29922;
+  --red: #f85149;
+  --purple: #bc8cff;
+  --font-mono: 'SF Mono', 'Fira Code', 'Cascadia Code', Consolas, monospace;
+  --font-sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-sans);
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+a { color: var(--accent); text-decoration: none; }
+a:hover { text-decoration: underline; }
+
+.container { max-width: 960px; margin: 0 auto; padding: 0 24px; }
+
+/* Hero */
+.hero {
+  text-align: center;
+  padding: 80px 0 60px;
+  border-bottom: 1px solid var(--border);
+}
+.hero h1 {
+  font-size: 3rem;
+  font-weight: 800;
+  color: var(--text-bright);
+  letter-spacing: -0.02em;
+}
+.hero h1 span { color: var(--accent); }
+.hero .tagline {
+  font-size: 1.25rem;
+  color: var(--text-dim);
+  margin-top: 12px;
+  max-width: 640px;
+  margin-left: auto;
+  margin-right: auto;
+}
+.stats {
+  display: flex;
+  justify-content: center;
+  gap: 32px;
+  margin-top: 32px;
+  flex-wrap: wrap;
+}
+.stat {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 16px 24px;
+  text-align: center;
+  min-width: 140px;
+}
+.stat .num {
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: var(--green);
+  font-family: var(--font-mono);
+}
+.stat .label {
+  font-size: 0.8rem;
+  color: var(--text-dim);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-top: 4px;
+}
+
+/* Sections */
+section { padding: 60px 0; border-bottom: 1px solid var(--border); }
+section:last-child { border-bottom: none; }
+h2 {
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: var(--text-bright);
+  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+h2 .icon { font-size: 1.5rem; }
+h3 {
+  font-size: 1.15rem;
+  color: var(--accent);
+  margin: 24px 0 12px;
+  font-weight: 600;
+}
+p { margin-bottom: 16px; }
+
+/* Code blocks */
+pre {
+  background: var(--bg-code);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 20px;
+  overflow-x: auto;
+  font-family: var(--font-mono);
+  font-size: 0.85rem;
+  line-height: 1.5;
+  margin: 16px 0;
+  color: var(--text);
+}
+code {
+  font-family: var(--font-mono);
+  font-size: 0.85em;
+  background: var(--bg-code);
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+pre code { background: none; padding: 0; }
+.kw { color: var(--purple); }
+.str { color: #a5d6ff; }
+.cmt { color: var(--text-dim); font-style: italic; }
+.flag { color: var(--yellow); }
+.val { color: var(--green); }
+
+/* Architecture diagram */
+.arch-diagram {
+  background: var(--bg-code);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 24px 32px;
+  font-family: var(--font-mono);
+  font-size: 0.82rem;
+  line-height: 1.7;
+  overflow-x: auto;
+  margin: 20px 0;
+  white-space: pre;
+}
+.arch-diagram .proc { color: var(--accent); font-weight: 700; }
+.arch-diagram .ns { color: var(--purple); }
+.arch-diagram .port { color: var(--green); }
+.arch-diagram .dim { color: var(--text-dim); }
+
+/* Tables */
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 16px 0;
+  font-size: 0.9rem;
+}
+th, td {
+  padding: 10px 14px;
+  border: 1px solid var(--border);
+  text-align: left;
+}
+th {
+  background: var(--bg-card);
+  color: var(--text-bright);
+  font-weight: 600;
+  white-space: nowrap;
+}
+td { vertical-align: top; }
+tr:nth-child(even) { background: rgba(22, 27, 34, 0.5); }
+.yes { color: var(--green); font-weight: 600; }
+.no { color: var(--red); }
+.partial { color: var(--yellow); }
+
+/* Feature cards */
+.features {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 16px;
+  margin-top: 20px;
+}
+.feature {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 20px;
+}
+.feature .title {
+  color: var(--green);
+  font-weight: 700;
+  font-size: 0.95rem;
+  margin-bottom: 8px;
+}
+.feature p {
+  color: var(--text-dim);
+  font-size: 0.85rem;
+  margin: 0;
+}
+
+/* Footer */
+footer {
+  padding: 40px 0;
+  text-align: center;
+  color: var(--text-dim);
+  font-size: 0.85rem;
+}
+footer a { color: var(--accent); }
+
+/* Responsive */
+@media (max-width: 640px) {
+  .hero h1 { font-size: 2rem; }
+  .stats { gap: 12px; }
+  .stat { min-width: 100px; padding: 12px 16px; }
+  .stat .num { font-size: 1.25rem; }
+  pre { padding: 14px; font-size: 0.78rem; }
+  .arch-diagram { padding: 16px; font-size: 0.72rem; }
+}
+</style>
+</head>
+<body>
+
+<!-- Hero -->
+<div class="hero">
+  <div class="container">
+    <h1><span>sidecar</span></h1>
+    <p class="tagline">
+      A lightweight, rootless chroot launcher for running Apple Music's FairPlay
+      decrypt daemon on Linux &mdash; with full observability, graceful lifecycle
+      management, and zero Docker overhead.
+    </p>
+    <div class="stats">
+      <div class="stat"><div class="num">923</div><div class="label">Lines of C</div></div>
+      <div class="stat"><div class="num">39KB</div><div class="label">Binary</div></div>
+      <div class="stat"><div class="num">0</div><div class="label">Root needed</div></div>
+      <div class="stat"><div class="num">&lt;5s</div><div class="label">Decrypt 50MB</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- Architecture -->
+<section>
+  <div class="container">
+    <h2><span class="icon">&#9881;</span> Architecture</h2>
+    <p>
+      sidecar creates an isolated Linux user namespace, bind-mounts the host
+      kernel interfaces into an Android rootfs, and <code>exec</code>s the
+      FairPlay binary inside the chroot. The child exposes two raw TCP ports
+      for pipelined decrypt and HLS resolution.
+    </p>
+    <div class="arch-diagram"><span class="proc">sidecar</span> <span class="dim">(PID 1, user space)</span>
+  <span class="dim">│</span>
+  <span class="dim">├─</span> <span class="ns">unshare(CLONE_NEWUSER | CLONE_NEWNS)</span>
+  <span class="dim">│   ├─</span> write /proc/self/uid_map  <span class="dim">→ 0 &lt;real_uid&gt; 1</span>
+  <span class="dim">│   └─</span> write /proc/self/gid_map  <span class="dim">→ 0 &lt;real_gid&gt; 1</span>
+  <span class="dim">│</span>
+  <span class="dim">├─</span> bind-mount /dev, /proc, /sys  <span class="dim">→ rootfs/</span>
+  <span class="dim">├─</span> seed /etc/{resolv.conf, hosts}  <span class="dim">→ rootfs/etc/</span>
+  <span class="dim">│</span>
+  <span class="dim">├─</span> <span class="ns">chroot("./rootfs")</span>
+  <span class="dim">│   └─</span> <span class="proc">exec /system/bin/main</span> <span class="dim">(FairPlay daemon)</span>
+  <span class="dim">│       ├─</span> <span class="port">TCP :47010</span> <span class="dim">— decrypt (sample-by-sample stream cipher)</span>
+  <span class="dim">│       └─</span> <span class="port">TCP :47020</span> <span class="dim">— m3u8  (HLS master URL resolution)</span>
+  <span class="dim">│</span>
+  <span class="dim">└─</span> <span class="proc">supervisor loop</span>
+      <span class="dim">├─</span> PTY drain  <span class="dim">(line-buffered child output)</span>
+      <span class="dim">├─</span> port readiness gate  <span class="dim">(--wait-ports)</span>
+      <span class="dim">├─</span> SIGUSR1 → graceful restart  <span class="dim">(re-fork, no PID change)</span>
+      <span class="dim">└─</span> SIGTERM → grace shutdown  <span class="dim">(TERM → wait → KILL)</span></div>
+  </div>
+</section>
+
+<!-- Why sidecar -->
+<section>
+  <div class="container">
+    <h2><span class="icon">&#9889;</span> Why sidecar</h2>
+    <p>
+      The community has built impressive tools for Apple Music ALAC decryption.
+      sidecar builds on that foundation while solving real operational pain points:
+    </p>
+    <div class="features">
+      <div class="feature">
+        <div class="title">No Root Required</div>
+        <p>User namespace isolation (<code>unshare</code>) maps your UID to root inside
+        the namespace. No <code>sudo</code>, no capabilities, no Docker daemon.</p>
+      </div>
+      <div class="feature">
+        <div class="title">Full Observability</div>
+        <p>PTY-forwarded child output (line-buffered, not swallowed).
+        <code>--json-events</code> for machine-parseable status.
+        <code>--verbose</code> for human-readable progress.</p>
+      </div>
+      <div class="feature">
+        <div class="title">Port Readiness Gate</div>
+        <p><code>--wait-ports 47010,47020</code> blocks until the decrypt daemon is
+        actually listening. No blind sleep/poll needed.</p>
+      </div>
+      <div class="feature">
+        <div class="title">Graceful Lifecycle</div>
+        <p><code>SIGUSR1</code> re-forks the child without restarting sidecar itself.
+        <code>SIGTERM</code> sends graceful shutdown with configurable timeout.</p>
+      </div>
+      <div class="feature">
+        <div class="title">DNS Bootstrap</div>
+        <p>Automatically seeds <code>resolv.conf</code>, <code>hosts</code>, and
+        <code>nsswitch.conf</code> into the chroot. No silent DNS failures.</p>
+      </div>
+      <div class="feature">
+        <div class="title">Single C File</div>
+        <p>923 lines, zero dependencies beyond libc + libutil.
+        Build with <code>make</code>. Audit the entire codebase in an afternoon.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Comparison -->
+<section>
+  <div class="container">
+    <h2><span class="icon">&#128200;</span> Comparison</h2>
+    <p>
+      Inspired by and building upon the pioneering work of
+      <a href="https://github.com/zhaarey/wrapper">zhaarey/wrapper</a>,
+      <a href="https://github.com/glomatico/wrapper-v2">glomatico/wrapper-v2</a>, and
+      <a href="https://github.com/WorldObservationLog/wrapper">WorldObservationLog/wrapper</a>.
+    </p>
+    <table>
+      <tr>
+        <th>Feature</th>
+        <th>sidecar</th>
+        <th>wrapper</th>
+        <th>wrapper-v2</th>
+      </tr>
+      <tr>
+        <td>Language</td>
+        <td>C (923 lines, open source)</td>
+        <td>C++ (closed binary)</td>
+        <td>Rust supervisor + C++ worker</td>
+      </tr>
+      <tr>
+        <td>Root required</td>
+        <td class="yes">No (user namespace)</td>
+        <td class="yes">No (user namespace)</td>
+        <td class="partial">Docker required</td>
+      </tr>
+      <tr>
+        <td>PTY output</td>
+        <td class="yes">Yes (line-buffered)</td>
+        <td class="no">No</td>
+        <td class="no">No</td>
+      </tr>
+      <tr>
+        <td>Port readiness</td>
+        <td class="yes">--wait-ports (TCP probe)</td>
+        <td class="no">None (blind start)</td>
+        <td class="yes">Supervisor manages</td>
+      </tr>
+      <tr>
+        <td>Graceful restart</td>
+        <td class="yes">SIGUSR1 in-process</td>
+        <td class="no">Process exits</td>
+        <td class="yes">Supervisor re-spawns</td>
+      </tr>
+      <tr>
+        <td>DNS handling</td>
+        <td class="yes">Auto-seed resolv.conf</td>
+        <td class="no">None</td>
+        <td class="partial">Docker handles</td>
+      </tr>
+      <tr>
+        <td>Structured events</td>
+        <td class="yes">--json-events</td>
+        <td class="no">None</td>
+        <td class="no">None</td>
+      </tr>
+      <tr>
+        <td>Grace shutdown</td>
+        <td class="yes">TERM &rarr; wait &rarr; KILL</td>
+        <td class="no">Immediate exit</td>
+        <td class="yes">Supervisor handles</td>
+      </tr>
+      <tr>
+        <td>Multi-instance</td>
+        <td class="yes">Port offset + aria_sidecar.py</td>
+        <td class="partial">Manual only</td>
+        <td class="no">Single per container</td>
+      </tr>
+      <tr>
+        <td>Docker dependency</td>
+        <td class="yes">None</td>
+        <td class="yes">None</td>
+        <td class="no">Required</td>
+      </tr>
+      <tr>
+        <td>Binary size</td>
+        <td><strong>39 KB</strong></td>
+        <td>20 KB</td>
+        <td>~5 MB (Rust)</td>
+      </tr>
+      <tr>
+        <td>Source available</td>
+        <td class="yes">Yes</td>
+        <td class="no">No</td>
+        <td class="yes">Yes</td>
+      </tr>
+    </table>
+  </div>
+</section>
+
+<!-- Quick Start -->
+<section>
+  <div class="container">
+    <h2><span class="icon">&#128640;</span> Quick Start</h2>
+
+    <h3>Build</h3>
+<pre><code><span class="cmt"># Clone and build</span>
+git clone https://github.com/overkazaf/sidecar.git
+cd sidecar
+make          <span class="cmt"># → ./sidecar (39 KB)</span></code></pre>
+
+    <h3>Run (code-from-file mode, no login)</h3>
+<pre><code>./sidecar <span class="flag">--userns</span> <span class="flag">--rootfs</span> <span class="val">./rootfs</span> <span class="flag">--bin</span> <span class="val">/system/bin/main</span> \
+  <span class="flag">--wait-ports</span> <span class="val">47010,47020</span> <span class="flag">--verbose</span> \
+  <span class="flag">--</span> -M <span class="val">47020</span> -D <span class="val">47010</span> -F</code></pre>
+
+    <h3>Run (login mode, first-time auth)</h3>
+<pre><code>./sidecar <span class="flag">--userns</span> <span class="flag">--rootfs</span> <span class="val">./rootfs</span> <span class="flag">--bin</span> <span class="val">/system/bin/main</span> \
+  <span class="flag">--wait-ports</span> <span class="val">47010,47020</span> <span class="flag">--verbose</span> \
+  <span class="flag">--</span> -M <span class="val">47020</span> -D <span class="val">47010</span> --login=<span class="val">user@host:pass</span></code></pre>
+
+    <h3>Multi-instance (4 parallel decrypt workers)</h3>
+<pre><code><span class="kw">for</span> i <span class="kw">in</span> 0 1 2 3; <span class="kw">do</span>
+  ./sidecar <span class="flag">--userns</span> <span class="flag">--rootfs</span> <span class="val">./rootfs</span> <span class="flag">--bin</span> <span class="val">/system/bin/main</span> \
+    <span class="flag">--wait-ports</span> <span class="val">$((47010+i)),$((47020+i))</span> \
+    <span class="flag">--</span> -M <span class="val">$((47020+i))</span> -D <span class="val">$((47010+i))</span> -F &amp;
+<span class="kw">done</span></code></pre>
+
+    <h3>Graceful restart (re-login without restarting sidecar)</h3>
+<pre><code>kill -USR1 <span class="val">$(pgrep -f sidecar)</span></code></pre>
+  </div>
+</section>
+
+<!-- CLI Reference -->
+<section>
+  <div class="container">
+    <h2><span class="icon">&#128736;</span> CLI Reference</h2>
+    <table>
+      <tr><th>Flag</th><th>Default</th><th>Description</th></tr>
+      <tr><td><code>--rootfs PATH</code></td><td><code>./rootfs</code></td><td>Android rootfs directory</td></tr>
+      <tr><td><code>--bin PATH</code></td><td><code>/system/bin/main</code></td><td>Binary to exec inside chroot</td></tr>
+      <tr><td><code>--userns</code></td><td>on</td><td>Use user namespace (no root). <code>--no-userns</code> for real root chroot</td></tr>
+      <tr><td><code>--wait-ports P,P</code></td><td>&mdash;</td><td>Block until these TCP ports respond</td></tr>
+      <tr><td><code>--wait-timeout N</code></td><td>120</td><td>Seconds to wait for ports before giving up</td></tr>
+      <tr><td><code>--grace-secs N</code></td><td>10</td><td>Seconds between SIGTERM and SIGKILL on shutdown</td></tr>
+      <tr><td><code>--verbose</code></td><td>off</td><td>Print setup steps to stderr</td></tr>
+      <tr><td><code>--json-events</code></td><td>off</td><td>Machine-readable JSON status on stderr</td></tr>
+      <tr><td><code>--pid-file PATH</code></td><td>&mdash;</td><td>Write child PID for systemd/k8s probes</td></tr>
+      <tr><td><code>--ready-fd N</code></td><td>&mdash;</td><td>Write <code>\1\n</code> to fd N when ports ready</td></tr>
+      <tr><td><code>--cwd-in-chroot</code></td><td><code>/</code></td><td>Working directory after chroot</td></tr>
+      <tr><td><code>--</code></td><td>&mdash;</td><td>Everything after this is passed to the child process</td></tr>
+    </table>
+  </div>
+</section>
+
+<!-- Wire Protocol -->
+<section>
+  <div class="container">
+    <h2><span class="icon">&#128268;</span> Wire Protocol</h2>
+    <p>
+      The FairPlay binary exposes two raw TCP ports. Both are locally-unauthenticated
+      with simple length-prefixed binary framing.
+    </p>
+
+    <h3>Port 47020 &mdash; m3u8 (get-stream)</h3>
+    <p>Resolves an Apple Music <code>adamId</code> to an enhanced-HLS master playlist URL.</p>
+<pre><code><span class="cmt">client → server:</span>  <span class="val">0a</span> <span class="str">31 34 34 30 38 34 31 32 36 33</span>
+                  <span class="dim">└─┘ └────── '1440841263' ──────┘</span>
+                  <span class="dim">len</span>
+
+<span class="cmt">server → client:</span>  <span class="str">"https://aod-ssl.itunes.apple.com/...master.m3u8\n"</span></code></pre>
+
+    <h3>Port 47010 &mdash; decrypt (sample-by-sample)</h3>
+    <p>Full-duplex pipelined stream cipher. Supports multiple key contexts per connection.</p>
+<pre><code><span class="cmt"># Key context header (once per key):</span>
+<span class="val">len(adamId)</span> <span class="str">adamId</span> <span class="val">len(keyUri)</span> <span class="str">keyUri</span>
+
+<span class="cmt"># Per-sample (repeated):</span>
+<span class="val">LE-uint32 sample_len</span> <span class="str">ciphertext[sample_len]</span>  <span class="dim">→</span>  <span class="str">plaintext[sample_len]</span>
+
+<span class="cmt"># End context:</span>
+<span class="val">00 00 00 00</span></code></pre>
+  </div>
+</section>
+
+<!-- Integration -->
+<section>
+  <div class="container">
+    <h2><span class="icon">&#128279;</span> Integration with aria</h2>
+    <p>
+      <a href="https://github.com/overkazaf/aria">aria</a> is the HTTP API service
+      that orchestrates the full ALAC pipeline: Apple catalog lookup &rarr; HLS download
+      &rarr; FairPlay decrypt via sidecar &rarr; m4a output.
+    </p>
+<pre><code><span class="cmt"># aria_sidecar.py manages N sidecar instances</span>
+python3 aria_sidecar.py -F --instances <span class="val">4</span>
+
+<span class="cmt"># aria server round-robins decrypt requests across instances</span>
+ARIA_INSTANCES=<span class="val">4</span> python3 server.py --port <span class="val">8899</span>
+
+<span class="cmt"># Download Hi-Res ALAC</span>
+curl -H <span class="str">"Authorization: Bearer $TOKEN"</span> \
+  <span class="str">"http://localhost:8899/download/1440841263?fmt=alac"</span> \
+  -o song.m4a</code></pre>
+
+    <p>
+      The <code>DecryptPool</code> in aria's <code>decryptor.py</code> maintains
+      one TCP session per sidecar instance with per-instance mutex locks,
+      ensuring each decrypt daemon handles one track at a time.
+    </p>
+  </div>
+</section>
+
+<!-- Footer -->
+<footer>
+  <div class="container">
+    <p>
+      <strong>sidecar</strong> &mdash; MIT License &mdash;
+      <a href="https://github.com/overkazaf/sidecar">GitHub</a>
+    </p>
+    <p style="margin-top: 8px;">
+      Inspired by
+      <a href="https://github.com/zhaarey/wrapper">zhaarey/wrapper</a>,
+      <a href="https://github.com/glomatico/wrapper-v2">glomatico/wrapper-v2</a>, and
+      <a href="https://github.com/WorldObservationLog/wrapper">WorldObservationLog/wrapper</a>.
+    </p>
+  </div>
+</footer>
+
+</body>
+</html>
