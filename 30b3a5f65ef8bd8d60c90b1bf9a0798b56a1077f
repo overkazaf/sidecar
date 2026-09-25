@@ -1,0 +1,37 @@
+docs/index.html
+  7fca30ff5809315c 9-21,46,48,52,62,66,70,77,122-123,138,326
+docs/cn.html
+  7fca30ff5809315c 9-21,23,57-58,64,71,99,101,105,115,119,123
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.2.8-ntes.9",
+  "base_commit_sha": "30b3a5f65ef8bd8d60c90b1bf9a0798b56a1077f",
+  "prompts": {
+    "7fca30ff5809315c": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "e3fd8795-f7b7-4095-8a46-6709ec55ba53",
+        "model": "claude-opus-4-6"
+      },
+      "human_author": "overkazaf",
+      "messages": [],
+      "total_additions": 48,
+      "total_deletions": 47,
+      "accepted_lines": 48,
+      "overriden_lines": 0,
+      "per_file_stats": {
+        "docs/cn.html": {
+          "additions": 24,
+          "deletions": 23,
+          "accepted_lines": 24
+        },
+        "docs/index.html": {
+          "additions": 24,
+          "deletions": 24,
+          "accepted_lines": 24
+        }
+      }
+    }
+  }
+}
