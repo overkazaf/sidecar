@@ -479,7 +479,7 @@ static SuperviseEnd supervise_until_done(pid_t child, int master_fd,
             int all_seen = 1;
             for (size_t i = 0; i < pw->n_ports; i++) {
                 if (pw->seen[i]) continue;
-                if (probe_port(pw->ports[i], 100)) {
+                if (probe_port(pw->ports[i], 30)) {  /* 30ms probe timeout (loopback is instant) */
                     pw->seen[i] = 1;
                     char json[64], plain[64];
                     snprintf(json,  sizeof json,  ",\"port\":%u", pw->ports[i]);
@@ -505,7 +505,7 @@ static SuperviseEnd supervise_until_done(pid_t child, int master_fd,
                 pw->success  = 0;
                 evt("port_probe_timeout");
             } else {
-                pw->tick_due_ms = now_ms() + 200;
+                pw->tick_due_ms = now_ms() + 50;  /* 50ms probe tick (was 200ms) */
             }
         }
         (void)n;
@@ -596,8 +596,17 @@ static pid_t spawn_child(const char *rootfs, const char *bin,
                          int use_pty, int *master_fd_out) {
     int master_fd = -1, slave_fd = -1;
 
-    /* Step 1: PTY allocation BEFORE any namespace changes (needs /dev/pts) */
-    if (use_pty) {
+    /* Step 1: PTY allocation BEFORE any namespace changes (needs /dev/pts).
+     * In userns mode, /dev/pts is often unavailable — default to pipe for speed.
+     * Use --force-pty to override. */
+    if (use_pty && g_userns) {
+        /* Try openpty but don't warn on expected userns failure */
+        if (openpty(&master_fd, &slave_fd, NULL, NULL, NULL) < 0) {
+            use_pty = 0;  /* silent fallback to pipe — expected in userns */
+        } else {
+            fcntl(master_fd, F_SETFL, O_NONBLOCK);
+        }
+    } else if (use_pty) {
         if (openpty(&master_fd, &slave_fd, NULL, NULL, NULL) < 0) {
             fprintf(stderr, "[sidecar] (warn) openpty failed: %s — falling back to pipe mode\n",
                     strerror(errno));
@@ -624,7 +633,8 @@ static pid_t spawn_child(const char *rootfs, const char *bin,
         /* We are now uid 0 inside the namespace — mounts work */
         bind_mount_dev(rootfs);
         bind_mount_proc_sys(rootfs);
-        seed_chroot_etc(rootfs);
+        /* DNS seed skipped in userns: fake uid 0 can't write to host-owned rootfs/etc,
+         * and main doesn't need DNS (it uses IPs or parent-resolved hostnames). */
         vlog("namespace setup complete, forking child");
     }
 
